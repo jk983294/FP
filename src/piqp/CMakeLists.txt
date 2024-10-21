@@ -1,0 +1,5 @@
+file(GLOB_RECURSE PIQP_SOURCES "*.cpp")
+add_library(piqp SHARED ${PIQP_SOURCES})
+target_link_libraries(piqp ${OpenMP_CXX_LIBRARIES} pthread rt)
+set_property(TARGET piqp PROPERTY POSITION_INDEPENDENT_CODE ON)
+install(TARGETS piqp LIBRARY DESTINATION lib)
