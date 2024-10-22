@@ -5,6 +5,7 @@
 // This source code is licensed under the BSD 2-Clause License found in the
 // LICENSE file in the root directory of this source tree.
 
+#include <piqp/common.hpp>
 #include <piqp/sparse/ordering.hpp>
 
 namespace piqp {

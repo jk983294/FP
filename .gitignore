@@ -34,3 +34,5 @@
 build/
 aaron_test/
 .vscode/
+.idea/
+cmake-build-debug/

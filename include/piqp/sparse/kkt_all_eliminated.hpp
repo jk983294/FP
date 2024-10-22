@@ -9,6 +9,7 @@
 #ifndef PIQP_SPARSE_KKT_ALL_ELIMINATED_HPP
 #define PIQP_SPARSE_KKT_ALL_ELIMINATED_HPP
 
+#include <piqp/sparse/utils.hpp>
 #include <piqp/kkt_fwd.hpp>
 #include <piqp/typedefs.hpp>
 

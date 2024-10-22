@@ -184,12 +184,6 @@ struct LDLt {
 
 }  // namespace piqp
 
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
-#pragma float_control(pop)
-#elif defined(__GNUC__) || defined(__clang__)
-#pragma STDC FP_CONTRACT DEFAULT
-#endif
-
 #ifdef PIQP_WITH_TEMPLATE_INSTANTIATION
 #include "piqp/sparse/ldlt.tpp"
 #endif

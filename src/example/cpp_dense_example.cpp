@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <limits>
-#include "piqp/piqp.hpp"
+#include <piqp/piqp.hpp>
 
 int main()
 {

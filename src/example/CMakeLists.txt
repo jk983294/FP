@@ -5,5 +5,5 @@ foreach (sourcefile ${APP_SOURCES})
 
     message("source files: " ${sourcefile} " executable: " ${executablename})
     add_executable(${executablename} ${sourcefile})
-    target_link_libraries(${executablename} piqp pthread rt)
+    target_link_libraries(${executablename} fp piqp pthread rt)
 endforeach (sourcefile ${APP_SOURCES})

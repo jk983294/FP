@@ -19,12 +19,13 @@
 #include <piqp/dense/preconditioner.hpp>
 #include <piqp/fwd.hpp>
 #include <piqp/settings.hpp>
+#include <piqp/sparse/utils.hpp>
 #include <piqp/sparse/data.hpp>
 #include <piqp/sparse/kkt.hpp>
 #include <piqp/sparse/preconditioner.hpp>
 #include <piqp/utils/optional.hpp>
-#include "piqp/results.hpp"
-#include "piqp/timer.hpp"
+#include <piqp/results.hpp>
+#include <piqp/timer.hpp>
 
 namespace piqp {
 
