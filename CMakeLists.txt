@@ -20,7 +20,7 @@ message ("cxx Flags: " ${CMAKE_CXX_FLAGS})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
-# Source code
+include_directories(SYSTEM /opt/3rd/common/include)
 include_directories(SYSTEM /opt/3rd/Eigen)
 include_directories(include)
 include_directories(/opt/version/latest/zergtool/include)
