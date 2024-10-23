@@ -10,8 +10,8 @@ void FpOpt::clear() {
     // m_c.resize(0);
     m_A.resize(0, 0);
     m_b.resize(0);
-    m_G.resize(0, 0);
-    m_h.resize(0);
+    // m_G.resize(0, 0);
+    // m_h.resize(0);
     m_x_lb.resize(0);
     m_x_ub.resize(0);
 }
@@ -32,6 +32,10 @@ void FpOpt::solve() {
         }
         case FpOptType::MeanVariance: {
             handle_MeanVariance();
+            break;
+        }
+        case FpOptType::Constrained: {
+            handle_Constrained();
             break;
         }
         default:
