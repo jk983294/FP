@@ -34,6 +34,13 @@ std::vector<double> ToVector(const Eigen::VectorXd& vec) {
     return ret;
 }
 
+std::vector<double> ToVector(const Eigen::MatrixXd& m) {
+    std::vector<double> ret(m.rows() * m.cols());
+    const double* ptr = m.data();
+    std::copy(ptr, ptr + ret.size(), ret.data());
+    return ret;
+}
+
 void append(Eigen::VectorXd& target, double val) {
     target.conservativeResize(target.size() + 1);
     target(target.size() - 1) = val;

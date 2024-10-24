@@ -38,8 +38,19 @@ void FpOpt::solve() {
             handle_Constrained();
             break;
         }
+        case FpOptType::SoftConstrained: {
+            handle_SoftConstrained();
+            break;
+        }
         default:
             printf("should not print here!\n");
+    }
+}
+
+void FpOpt::set_riskAversion(double v) { 
+    m_riskAversion = v;
+    if (m_riskAversion <= 1e-6) {
+        m_covConstrain = false;
     }
 }
 void FpOpt::set_covariance(const Eigen::MatrixXd& cov) {
@@ -54,6 +65,12 @@ void FpOpt::set_covariance(const Eigen::MatrixXd& cov) {
             + std::to_string(numRows) + " vs " + std::to_string(m_n));
     }
     
+    m_covConstrain = true;
+    if (m_optType == FpOptType::SoftConstrained) {
+        m_orig_cov = ToVector(cov);
+        return;
+    }
+
     if (m_bIncludeCash) {
         if (m_n == numRows) {
             m_P = cov;
@@ -85,6 +102,7 @@ void FpOpt::set_expected_return(const Eigen::VectorXd& ret, double rf) {
     } else {
         m_c = ret;
     }
+    m_y_hat = ToVector(m_c);
 }
 
 void FpOpt::set_type(FpOptType type) {

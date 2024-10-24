@@ -1,7 +1,12 @@
 #include <fp_opt.h>
+#include <fp_eigen.h>
 #include <iostream>
-#include <limits>
+#include <random>
+#include <chrono>
 #include <getopt.h>
+
+using namespace std;
+using namespace std::chrono;
 
 static void help() {
     std::cout << "Program options:" << std::endl;
@@ -18,40 +23,31 @@ static void help() {
 
 int main(int argc, char** argv) {
     FP::FpOpt opt;
-    opt.set_type(FP::FpOptType::Constrained);
-    size_t nIns = 2;
+    opt.set_type(FP::FpOptType::SoftConstrained);
+    size_t nIns = 5000;
     double riskAversion = 0;
     double maxWeight = 1;
-    double cash = 0.05;
-    double old_weight = NAN;
-    double tv = NAN;
-    double sector_max = NAN;
-    bool longOnly = true;
-    bool verbose = false;
+    double cash = 0.01;
+    double tv = 0.2;
+    double sector_max = 0.2;
 
     int opt1;
-    while ((opt1 = getopt(argc, argv, "hvlr:i:t:s:o:m:")) != -1) {
+    while ((opt1 = getopt(argc, argv, "hvr:i:t:s:m:n:")) != -1) {
         switch (opt1) {
             case 'r':
                 riskAversion = std::stod(optarg);
                 break;
+            case 'n':
+                nIns = std::stoul(optarg);
+                break;
             case 'i':
                 opt.set_insMaxWeight(std::stod(optarg));
-                break;
-            case 'l':
-                longOnly = false;
-                break;
-            case 'v':
-                verbose = true;
                 break;
             case 't':
                 tv = std::stod(optarg);
                 break;
             case 's':
                 sector_max = std::stod(optarg);
-                break;
-            case 'o':
-                old_weight = std::stod(optarg);
                 break;
             case 'm':
                 maxWeight = std::stod(optarg);
@@ -63,35 +59,36 @@ int main(int argc, char** argv) {
         }
     }
 
-    opt.set_verbose(verbose);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    int max_sector = 20;
+    std::uniform_int_distribution<> dis(0, max_sector);
+    std::vector<int> sectors(nIns, 0);
+    for (size_t i = 0; i < nIns; ++i) {
+        sectors[i] = dis(gen);
+    }
+
+    opt.set_verbose(false);
     opt.set_size(nIns, false);
     opt.set_cashWeight(cash);
-    if (longOnly) opt.set_LongOnly(true);
+    opt.set_LongOnly(true);
     opt.set_insMaxWeight(maxWeight);
-    if (std::isfinite(sector_max)) {
-        opt.add_sector_constrain({0, 1}, {}, {sector_max});
-    }
-    if (std::isfinite(tv)) {
-        if (std::isfinite(old_weight)) {
-            opt.add_tv_constrain({old_weight, 1. - cash - old_weight}, tv);
-        } else {
-            opt.add_tv_constrain({}, tv);
-        }
-    }
-    Eigen::MatrixXd cov(nIns, nIns);
-    cov << 0.03, -0.01, -0.01, 0.05;
-    Eigen::VectorXd ret(nIns);
-    ret << 0.07, 0.1;
+    opt.add_sector_constrain(sectors, {}, {sector_max});
+    opt.add_tv_constrain({}, tv);
 
-    if (std::isfinite(tv)) {
-        opt.set_covariance(cov);
-    }
+    Eigen::MatrixXd pcor = Eigen::MatrixXd::Random(nIns, nIns);
+    pcor.diagonal() = Eigen::VectorXd::Ones(nIns);
+    Eigen::VectorXd sd_diag = Eigen::VectorXd::Random(nIns) * 0.1;
+    Eigen::MatrixXd cov = FP::corr2cov(pcor, sd_diag);
+    Eigen::VectorXd ret = Eigen::VectorXd::Random(nIns) * 0.01;
+
+    opt.set_covariance(cov);
     opt.set_expected_return(ret);
     opt.set_riskAversion(riskAversion);
+    steady_clock::time_point start = steady_clock::now();
     opt.solve();
-    if (!verbose) {
-        opt.tidy_info();
-    }
+    steady_clock::time_point end = steady_clock::now();
+    cout << "took " << nanoseconds{end - start}.count() << " ns." << endl;
     return 0;
 }
 

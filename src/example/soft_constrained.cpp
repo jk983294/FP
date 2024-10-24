@@ -18,7 +18,7 @@ static void help() {
 
 int main(int argc, char** argv) {
     FP::FpOpt opt;
-    opt.set_type(FP::FpOptType::Constrained);
+    opt.set_type(FP::FpOptType::SoftConstrained);
     size_t nIns = 2;
     double riskAversion = 0;
     double maxWeight = 1;

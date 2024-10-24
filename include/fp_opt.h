@@ -7,6 +7,7 @@ enum class FpOptType : int32_t {
     MinimumVariance,
     MeanVariance,
     Constrained,
+    SoftConstrained, // tv into penalty
 };
 
 struct FpOpt {
@@ -21,7 +22,8 @@ struct FpOpt {
      * includeCash only for MeanVariance
      */
     void set_size(size_t nIns, bool incCash = false);
-    void set_riskAversion(double v) { m_riskAversion = v; }
+    void set_riskAversion(double v);
+    void set_tvAversion(double v) { m_tvAversion = v; }
     void set_cashWeight(double w_) { m_cashWeight = w_; }
     void set_insMaxWeight(double w_) { m_insMaxWeight = w_; }
     void set_verbose(bool flag) { m_verbose = flag; }
@@ -33,14 +35,17 @@ struct FpOpt {
         const std::vector<double>& sector_wgts);
     void add_tv_constrain(const std::vector<double>& old_wgts, double tv = 0.2);
     std::vector<double> get_result() const;
+    void tidy_info() const;
 
 private:
     void handle_MinimumVariance();
     void handle_MeanVariance();
     void handle_Constrained();
+    void handle_SoftConstrained();
     void sanity_check();
     void add_ins_weight_constrain();
     void _tv_constrain();
+    void soft_tv_constrain();
 
 public:
     /**
@@ -52,14 +57,26 @@ public:
     bool m_bLongOnly{false};
     bool m_verbose{true};
     bool m_tvConstrain{false};
+    bool m_covConstrain{false};
     FpOptType m_optType{FpOptType::None};
-    double m_riskAversion{1.0}; // greater riskAversion, more conservative, keep more cash
+    /**
+     * lambda1
+     * greater riskAversion, more conservative, keep more cash
+     */
+    double m_riskAversion{1.0};
+    /**
+     * lambda2
+     * greater m_tvAversion, more conservative, do not trade much
+     */
+    double m_tvAversion{1.0};
     double m_cashWeight{0};
     double m_insMaxWeight{NAN}; // individual instrument max weight
     double m_maxTurnover{NAN};
     size_t m_nIns{0};
     size_t m_n{0}; // if include cash, m_n = m_nIns + 1, else m_n = m_nIns
     std::vector<double> m_oldWeights;
+    std::vector<double> m_y_hat;
+    std::vector<double> m_orig_cov;
     Eigen::MatrixXd m_P; // cov matrix
     Eigen::VectorXd m_c; // return vector
     Eigen::MatrixXd m_A; // equality constrains, Ax = b
@@ -71,6 +88,8 @@ public:
 
     int32_t m_status{0};
     double m_variance{NAN};
+    double m_expected_ret{NAN};
+    double m_turnover{NAN};
     Eigen::VectorXd m_result;
 };
 }  // namespace FP

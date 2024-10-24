@@ -79,10 +79,17 @@ void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std:
 
 void FpOpt::add_tv_constrain(const std::vector<double>& old_wgts, double tv) {
     m_oldWeights = old_wgts;
-    m_maxTurnover = tv;
+    m_tvAversion = m_maxTurnover = tv;
     m_tvConstrain = true;
-    if (m_maxTurnover <= 1e-6 || m_maxTurnover >= 1.) {
-        throw std::runtime_error("expect maxTurnover between [0 ~ 1]");
+    if (m_optType == FpOptType::SoftConstrained) {
+        if (m_tvAversion <= 1e-6) {
+            // throw std::runtime_error("expect m_tvAversion > 0");
+            m_tvConstrain = false;
+        }
+    } else {
+        if (m_maxTurnover <= 1e-6 || m_maxTurnover >= 1.) {
+            throw std::runtime_error("expect maxTurnover between [0 ~ 1]");
+        }
     }
     if (m_oldWeights.empty()) {
         m_oldWeights.resize(m_n, 0.);
@@ -102,6 +109,13 @@ void FpOpt::_tv_constrain() {
     resize(m_x_lb, m_n * 2);
     resize(m_x_ub, m_n * 2);
 
+    { // sum(z) = tv
+        Eigen::VectorXd sum_z = Eigen::VectorXd::Constant(m_n * 2, 1.);
+        sum_z.segment(0, m_n).setZero();
+        append(m_A, sum_z, true);
+        append(m_b, m_maxTurnover);
+    }
+
     {
         Eigen::MatrixXd new_G = Eigen::MatrixXd::Zero(m_n * 2, m_n * 2);
         Eigen::VectorXd new_h = Eigen::VectorXd::Zero(m_n * 2);
@@ -112,7 +126,7 @@ void FpOpt::_tv_constrain() {
 
             new_G(m_n + i, i) = -1.0;
             new_G(m_n + i, m_n + i) = -1.0;
-            new_h[i] = m_oldWeights[i];
+            new_h[m_n + i] = -m_oldWeights[i];
         }
         append(m_G, new_G, true);
         append(m_h, new_h);
@@ -147,9 +161,22 @@ void FpOpt::handle_Constrained() {
 
     m_status = status;
     m_result = solver.result().x;
-    if (status == piqp::Status::PIQP_SOLVED) {
+    m_expected_ret = m_result.segment(0, m_n).transpose() * Eigen::Map<Eigen::VectorXd>(m_y_hat.data(), m_n);
+    if (m_tvConstrain) {
+        auto wgt_ = m_result.segment(0, m_n);
+        auto cov_ = m_P.block(0, 0, m_n, m_n);
+        m_variance = wgt_.transpose() * cov_ * wgt_;
+    } else {
         m_variance = m_result.transpose() * m_P * m_result;
     }
+
+    if (m_tvConstrain) {
+        m_turnover = (m_result.segment(0, m_n) - Eigen::Map<Eigen::VectorXd>(m_oldWeights.data(), m_n)).lpNorm<1>();
+    } else {
+        m_turnover = m_result.segment(0, m_n).lpNorm<1>();
+    }
+    // if (status == piqp::Status::PIQP_SOLVED) {
+    // }
 
     if (m_verbose) {
         std::cout << "P :\n" << m_P << std::endl;
@@ -160,12 +187,13 @@ void FpOpt::handle_Constrained() {
             std::cout << "G :\n" << m_G << std::endl;
             std::cout << "h = " << m_h.transpose() << std::endl;
         }
-        std::cout << "corr :\n " << cov2corr(m_P) << std::endl;
-        std::cout << "lambda = " << m_riskAversion << std::endl;
+        if (m_tvConstrain) {
+            std::cout << "corr :\n " << cov2corr(m_P.block(0, 0, m_n, m_n)) << std::endl;
+        } else {
+            std::cout << "corr :\n " << cov2corr(m_P) << std::endl;
+        }
         std::cout << "weight bound [" << m_x_lb[0] << ", " << m_x_ub[0] << "]" << std::endl;
-        std::cout << "status = " << m_status << std::endl;
-        std::cout << "weight = " << m_result.transpose() << " cash=" << m_cashWeight << std::endl;
-        std::cout << "portfolio variance = " << m_variance << std::endl;
+        tidy_info();
     }
 }
 
