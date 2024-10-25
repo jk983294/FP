@@ -15,6 +15,8 @@ struct FpOpt {
     FpOpt(bool verbose): m_verbose{verbose} {}
     void clear();
     void solve();
+    void set_covariance_vec(const std::vector<double>& cov);
+    void set_expected_return_vec(const std::vector<double>& ret);
     void set_covariance(const Eigen::MatrixXd& cov);
     void set_expected_return(const Eigen::VectorXd& ret, double risk_free_ret = 0.01);
     void set_type(FpOptType type);
@@ -23,19 +25,24 @@ struct FpOpt {
      */
     void set_size(size_t nIns, bool incCash = false);
     void set_riskAversion(double v);
-    void set_tvAversion(double v) { m_tvAversion = v; }
+    void set_tvAversion(double v);
     void set_cashWeight(double w_) { m_cashWeight = w_; }
     void set_insMaxWeight(double w_) { m_insMaxWeight = w_; }
     void set_verbose(bool flag) { m_verbose = flag; }
     void set_BetaNeutral(bool flag) { m_bBetaNeutral = flag; }
     void set_LongOnly(bool flag) { m_bLongOnly = flag; }
     void set_DollarNeutral(bool flag) { m_bDollarNeutral = flag; }
-    void set_oldWeights(const std::vector<double>& ows) { m_oldWeights = ows; }
+    void set_oldWeights(const std::vector<double>& ows);
     void add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& sectors,
         const std::vector<double>& sector_wgts);
     void add_tv_constrain(const std::vector<double>& old_wgts, double tv = 0.2);
     std::vector<double> get_result() const;
     void tidy_info() const;
+    int get_type() const { return static_cast<int>(m_status); }
+    int get_status() const { return m_status; }
+    double get_variance() const { return m_variance; }
+    double get_expected_return() const { return m_expected_ret; }
+    double get_turnover() const { return m_turnover; }
 
 private:
     void handle_MinimumVariance();
@@ -58,7 +65,7 @@ public:
     bool m_verbose{true};
     bool m_tvConstrain{false};
     bool m_covConstrain{false};
-    FpOptType m_optType{FpOptType::None};
+    FpOptType m_optType{FpOptType::SoftConstrained};
     /**
      * lambda1
      * greater riskAversion, more conservative, keep more cash

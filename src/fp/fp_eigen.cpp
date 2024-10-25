@@ -27,6 +27,11 @@ Eigen::MatrixXd corr2cov(const Eigen::MatrixXd& corrMatrix, const Eigen::VectorX
     return cov_;
 }
 
+Eigen::VectorXd ToVector(const std::vector<double>& vec) {
+    Eigen::VectorXd _vector = Eigen::Map<const Eigen::VectorXd>(vec.data(), vec.size());
+    return _vector;
+}
+
 std::vector<double> ToVector(const Eigen::VectorXd& vec) {
     std::vector<double> ret(vec.size());
     const double* ptr = vec.data();

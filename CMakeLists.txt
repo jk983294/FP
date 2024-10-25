@@ -27,6 +27,9 @@ include_directories(/opt/version/latest/zergtool/include)
 
 link_directories(/opt/3rd/common/lib)
 
-install(DIRECTORY include/ DESTINATION include)
+# install(DIRECTORY include/ DESTINATION include)
+install(FILES include/fp_opt.h DESTINATION include)
 
 add_subdirectory(src)
+add_subdirectory(pybind11)
+add_subdirectory(pyfp)

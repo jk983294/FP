@@ -5,6 +5,7 @@ Eigen::MatrixXd cov2corr(const Eigen::MatrixXd& cov);
 Eigen::MatrixXd corr2cov(const Eigen::MatrixXd& corr, const Eigen::VectorXd& sd);
 std::vector<double> ToVector(const Eigen::VectorXd& vec);
 std::vector<double> ToVector(const Eigen::MatrixXd& m);
+Eigen::VectorXd ToVector(const std::vector<double>& vec);
 void append(Eigen::VectorXd& target, double val);
 void append(Eigen::VectorXd& target, const Eigen::VectorXd& vec);
 void append(Eigen::MatrixXd& target, const Eigen::MatrixXd& m, bool vertically = true);

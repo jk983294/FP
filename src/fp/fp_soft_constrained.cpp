@@ -8,6 +8,9 @@ void FpOpt::soft_tv_constrain() {
     if (!m_tvConstrain) return;
 
     { // c = (c + lambda2*old_w)
+        if (m_oldWeights.empty()) {
+            m_oldWeights.resize(m_n, 0);
+        }
         Eigen::Map<Eigen::VectorXd> old_w(m_oldWeights.data(), m_n);
         // std::cout << "m_c :" << m_c.transpose() << std::endl;
         m_c = m_c + m_tvAversion * old_w;

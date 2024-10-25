@@ -5,6 +5,8 @@ namespace FP {
 void FpOpt::clear() {
     m_status = 0;
     m_variance = NAN;
+    m_expected_ret = NAN;
+    m_turnover = NAN;
     m_result.resize(0);
     // m_P.resize(0, 0);
     // m_c.resize(0);
@@ -53,6 +55,15 @@ void FpOpt::set_riskAversion(double v) {
         m_covConstrain = false;
     }
 }
+
+void FpOpt::set_covariance_vec(const std::vector<double>& cov) {
+    m_covConstrain = true;
+    if (m_optType == FpOptType::SoftConstrained) {
+        m_orig_cov = cov;
+    } else {
+        throw std::runtime_error("expected SoftConstrained!");
+    }
+}
 void FpOpt::set_covariance(const Eigen::MatrixXd& cov) {
     uint32_t numRows = cov.rows();
     uint32_t numCols = cov.cols();
@@ -81,6 +92,15 @@ void FpOpt::set_covariance(const Eigen::MatrixXd& cov) {
         }
     } else {
         m_P = cov;
+    }
+}
+
+void FpOpt::set_expected_return_vec(const std::vector<double>& ret) {
+    if (m_optType == FpOptType::SoftConstrained) {
+        m_y_hat = ret;
+        m_c = ToVector(ret);
+    } else {
+        throw std::runtime_error("expected SoftConstrained!");
     }
 }
 

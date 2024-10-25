@@ -71,12 +71,11 @@ int main(int argc, char** argv) {
     if (std::isfinite(sector_max)) {
         opt.add_sector_constrain({0, 1}, {}, {sector_max});
     }
+    if (std::isfinite(old_weight)) {
+        opt.set_oldWeights({old_weight, 1. - cash - old_weight});
+    }
     if (std::isfinite(tv)) {
-        if (std::isfinite(old_weight)) {
-            opt.add_tv_constrain({old_weight, 1. - cash - old_weight}, tv);
-        } else {
-            opt.add_tv_constrain({}, tv);
-        }
+        opt.set_tvAversion(tv);
     }
     Eigen::MatrixXd cov(nIns, nIns);
     cov << 0.03, -0.01, -0.01, 0.05;

@@ -77,6 +77,23 @@ void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std:
     }
 }
 
+void FpOpt::set_tvAversion(double v) { 
+    m_tvAversion = v;
+    if (std::isfinite(m_tvAversion) && m_tvAversion > 1e-6) {
+        m_tvConstrain = true;
+    } else {
+        m_tvConstrain = false;
+    }
+}
+
+void FpOpt::set_oldWeights(const std::vector<double>& ows) { 
+    m_oldWeights = ows;
+    if (m_oldWeights.empty()) {
+        m_oldWeights.resize(m_n, 0.);
+    } else if (m_oldWeights.size() != m_n) {
+        throw std::runtime_error("expect m_oldWeights.size() == m_n " + std::to_string(m_n));
+    }
+}
 void FpOpt::add_tv_constrain(const std::vector<double>& old_wgts, double tv) {
     m_oldWeights = old_wgts;
     m_tvAversion = m_maxTurnover = tv;

@@ -36,3 +36,7 @@ aaron_test/
 .vscode/
 .idea/
 cmake-build-debug/
+*.gz
+pybind11/
+dist/
+pyfp.egg-info/

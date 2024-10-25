@@ -11,14 +11,12 @@ using namespace std::chrono;
 static void help() {
     std::cout << "Program options:" << std::endl;
     std::cout << "  -h                                    list help" << std::endl;
-    std::cout << "  -l arg (=)                          long only" << std::endl;
     std::cout << "  -r arg (=)                          riskAversion default 2" << std::endl;
+    std::cout << "  -n arg (=5000)                          n isn" << std::endl;
     std::cout << "  -i arg (=)                          max weight per instrument" << std::endl;
-    std::cout << "  -t arg (=)                          turnover" << std::endl;
+    std::cout << "  -t arg (=)                          tvAversion" << std::endl;
     std::cout << "  -s arg (=)                          sector" << std::endl;
-    std::cout << "  -o arg (=)                          old weight" << std::endl;
     std::cout << "  -m arg (=)                          ins max weight" << std::endl;
-    std::cout << "  -v arg (=false)                          verbose" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -68,13 +66,23 @@ int main(int argc, char** argv) {
         sectors[i] = dis(gen);
     }
 
+    size_t test_cnt = 10;
+    std::vector<int> random_pos(test_cnt, 0);
+    std::vector<double> random_value(test_cnt, 0);
+    std::uniform_int_distribution<> pos_dis(0, nIns);
+    std::uniform_real_distribution<double> value_dist(-1., 1.);
+    for (size_t i = 0; i < test_cnt; ++i) {
+        random_pos[i] = pos_dis(gen);
+        random_value[i] = value_dist(gen) * 0.01;
+    }
+
     opt.set_verbose(false);
     opt.set_size(nIns, false);
     opt.set_cashWeight(cash);
     opt.set_LongOnly(true);
     opt.set_insMaxWeight(maxWeight);
     opt.add_sector_constrain(sectors, {}, {sector_max});
-    opt.add_tv_constrain({}, tv);
+    // opt.add_tv_constrain({}, tv);
 
     Eigen::MatrixXd pcor = Eigen::MatrixXd::Random(nIns, nIns);
     pcor.diagonal() = Eigen::VectorXd::Ones(nIns);
@@ -85,10 +93,23 @@ int main(int argc, char** argv) {
     opt.set_covariance(cov);
     opt.set_expected_return(ret);
     opt.set_riskAversion(riskAversion);
+
+    std::unordered_map<int, int> results;
     steady_clock::time_point start = steady_clock::now();
-    opt.solve();
+    for (size_t i = 0; i < test_cnt; i++) {
+        opt.solve();
+        results[opt.get_status()]++;
+
+        ret(random_pos[i]) = random_value[i];
+        opt.set_expected_return(ret);
+        opt.set_oldWeights(opt.get_result());
+        opt.set_tvAversion(tv);
+    }
     steady_clock::time_point end = steady_clock::now();
-    cout << "took " << nanoseconds{end - start}.count() << " ns." << endl;
+    cout << "took " << nanoseconds{end - start}.count() / test_cnt << " ns." << endl;
+    for (auto& item : results) {
+        printf("status %d, cnt=%d\n", item.first, item.second);
+    }
     return 0;
 }
 

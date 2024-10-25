@@ -1,0 +1,7 @@
+CXX_STD = CXX17
+
+FPOPT_LIBS = -L/opt/version/latest/fp/lib/ -lfpopt
+EIGEN_INC = /opt/3rd/Eigen
+
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -I/opt/version/latest/fp/include/ -I$(EIGEN_INC)
+PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(FPOPT_LIBS)
