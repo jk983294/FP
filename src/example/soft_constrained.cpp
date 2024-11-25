@@ -1,7 +1,8 @@
 #include <fp_opt.h>
+#include <getopt.h>
 #include <iostream>
 #include <limits>
-#include <getopt.h>
+#include <random>
 
 static void help() {
     std::cout << "Program options:" << std::endl;
@@ -19,12 +20,12 @@ static void help() {
 int main(int argc, char** argv) {
     FP::FpOpt opt;
     opt.set_type(FP::FpOptType::SoftConstrained);
-    size_t nIns = 2;
+    size_t nIns = 10;
     double riskAversion = 0;
     double maxWeight = 1;
     double cash = 0.05;
     double old_weight = NAN;
-    double tv = NAN;
+    double tv = 0.5;
     double sector_max = NAN;
     bool longOnly = true;
     bool verbose = false;
@@ -63,6 +64,10 @@ int main(int argc, char** argv) {
         }
     }
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(-1.0, 1.0);
+
     opt.set_verbose(verbose);
     opt.set_size(nIns, false);
     opt.set_cashWeight(cash);
@@ -72,15 +77,34 @@ int main(int argc, char** argv) {
         opt.add_sector_constrain({0, 1}, {}, {sector_max});
     }
     if (std::isfinite(old_weight)) {
-        opt.set_oldWeights({old_weight, 1. - cash - old_weight});
+        std::vector<double> ows(nIns);
+        double wsum = 0;
+        for (size_t i = 0; i < nIns; ++i) {
+            ows[i] = std::abs(dis(gen));
+            wsum += ows[i];
+        }
+        for (size_t i = 0; i < nIns; ++i) {
+            ows[i] = ows[i] / wsum * old_weight;
+        }
+        opt.set_oldWeights(ows);
     }
     if (std::isfinite(tv)) {
         opt.set_tvAversion(tv);
     }
+    Eigen::VectorXd sd_ = Eigen::VectorXd::Random(nIns).cwiseAbs() * 0.1;
+    Eigen::VectorXd ret = Eigen::VectorXd::Random(nIns) * 0.01;
     Eigen::MatrixXd cov(nIns, nIns);
-    cov << 0.03, -0.01, -0.01, 0.05;
-    Eigen::VectorXd ret(nIns);
-    ret << 0.07, 0.1;
+
+    for (size_t i = 0; i < nIns; ++i) {
+        for (size_t j = 0; j < nIns; ++j) {
+            double cov_v = dis(gen) * sd_(i) * sd_(j);
+            cov(i, j) = cov_v;
+            cov(j, i) = cov_v;
+        }
+    }
+    for (size_t i = 0; i < nIns; ++i) {
+        cov(i, i) = sd_(i) * sd_(i);
+    }
 
     if (std::isfinite(tv)) {
         opt.set_covariance(cov);
@@ -93,4 +117,3 @@ int main(int argc, char** argv) {
     }
     return 0;
 }
-
