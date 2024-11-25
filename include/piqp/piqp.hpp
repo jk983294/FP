@@ -8,7 +8,6 @@
 #ifndef PIQP_PIQP_HPP
 #define PIQP_PIQP_HPP
 
-#include <omp.h>
 #include <piqp/fwd.hpp>
 #include <piqp/typedefs.hpp>
 #include "piqp/solver.hpp"

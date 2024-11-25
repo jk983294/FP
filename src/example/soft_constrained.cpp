@@ -16,13 +16,17 @@ static void help() {
     std::cout << "  -o arg (=)                          old weight" << std::endl;
     std::cout << "  -m arg (=)                          ins max weight" << std::endl;
     std::cout << "  -v arg (=false)                          verbose" << std::endl;
+    std::cout << "  -n arg (=10)                          nIns" << std::endl;
+    std::cout << "  -x arg (=4)                          n_thread" << std::endl;
+    std::cout << "./soft_constrained -o 0.4 -t 1 -r 1 -x 1 -n 1000" << std::endl;
 }
 
 int main(int argc, char** argv) {
-    omp_set_num_threads(4);
+    
     FP::FpOpt opt;
     opt.set_type(FP::FpOptType::SoftConstrained);
     size_t nIns = 10;
+    int n_thread = 4;
     double riskAversion = 0;
     double maxWeight = 1;
     double cash = 0.05;
@@ -33,10 +37,16 @@ int main(int argc, char** argv) {
     bool verbose = false;
 
     int opt1;
-    while ((opt1 = getopt(argc, argv, "hvlr:i:t:s:o:m:")) != -1) {
+    while ((opt1 = getopt(argc, argv, "hvlr:i:t:s:o:m:n:x:")) != -1) {
         switch (opt1) {
             case 'r':
                 riskAversion = std::stod(optarg);
+                break;
+            case 'n':
+                nIns = std::stoull(optarg);
+                break;
+            case 'x':
+                n_thread = std::stoull(optarg);
                 break;
             case 'i':
                 opt.set_insMaxWeight(std::stod(optarg));
@@ -65,6 +75,10 @@ int main(int argc, char** argv) {
                 return 0;
         }
     }
+
+    omp_set_num_threads(n_thread);
+    opt.set_threads(n_thread);
+    printf("n_thread=%d\n", n_thread);
 
     // std::random_device rd;
     // std::mt19937 gen(rd());

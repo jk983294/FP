@@ -9,6 +9,7 @@
 #ifndef PIQP_DENSE_KKT_HPP
 #define PIQP_DENSE_KKT_HPP
 
+#include "fast_llt.hpp"
 #include <piqp/dense/data.hpp>
 #include <piqp/dense/ldlt_no_pivot.hpp>
 #include <piqp/kkt_fwd.hpp>
@@ -199,38 +200,13 @@ struct KKT {
         }
 
         if (settings.m_threads <= 1) llt.compute(kkt_mat);
-        else fast_llt(settings.m_threads);
+        else fast_llt(llt, kkt_mat, settings.m_threads);
 
         if (iterative_refinement) {
             this->unregularize_kkt();
         }
 
         return llt.info() == Eigen::Success;
-    }
-
-    void fast_llt(int threads) {
-        auto& _llt_mat = llt.m_matrix;
-        const int64_t size = kkt_mat.rows();
-        _llt_mat.resize(size, size);
-
-        // Compute matrix L1 norm = max abs column sum.
-        std::vector<double> _l1_norms(size);
-        //#pragma omp parallel for schedule(dynamic, 1) num_threads(threads)
-        #pragma omp parallel for
-        for (int64_t col = 0; col < size; ++col) {
-            _l1_norms[col] = _llt_mat.col(col).tail(size - col).template lpNorm<1>() + _llt_mat.row(col).head(col).template lpNorm<1>();
-        }
-
-        double _l1_norm = 0;
-        for (int64_t col = 0; col < size; ++col) {
-            if (_l1_norms[col] > _l1_norm) _l1_norm = _l1_norms[col];
-        }
-        llt.m_l1_norm = _l1_norm;
-
-        llt.m_isInitialized = true;
-        using IDecomp = typename Eigen::LLT<Mat<T>, Eigen::Lower>::Traits;
-        bool ok = IDecomp::inplace_decomposition(_llt_mat);
-        llt.m_info = ok ? Eigen::Success : Eigen::NumericalIssue;
     }
 
     void regularize_kkt(T reg) {

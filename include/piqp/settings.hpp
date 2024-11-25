@@ -9,7 +9,6 @@
 #ifndef PIQP_SETTINGS_HPP
 #define PIQP_SETTINGS_HPP
 
-#include <omp.h>
 #include <limits>
 #include <piqp/typedefs.hpp>
 
