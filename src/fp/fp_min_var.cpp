@@ -2,6 +2,7 @@
 #include <fp_eigen.h>
 #include <piqp/piqp.hpp>
 #include <iostream>
+#include <omp.h>
 
 namespace FP {
 void FpOpt::handle_MinimumVariance() {

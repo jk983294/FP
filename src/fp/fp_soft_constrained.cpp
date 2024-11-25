@@ -59,6 +59,7 @@ void FpOpt::handle_SoftConstrained() {
     piqp::DenseSolver<double> solver;
     solver.settings().verbose = m_verbose;
     solver.settings().compute_timings = m_verbose;
+    solver.settings().m_threads = m_threads;
     if (m_G.rows() > 0) {
         solver.setup(m_P, _c, m_A, m_b, m_G, m_h, m_x_lb, m_x_ub);
     } else {

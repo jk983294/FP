@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <random>
+#include <omp.h>
 
 static void help() {
     std::cout << "Program options:" << std::endl;
@@ -18,6 +19,7 @@ static void help() {
 }
 
 int main(int argc, char** argv) {
+    omp_set_num_threads(4);
     FP::FpOpt opt;
     opt.set_type(FP::FpOptType::SoftConstrained);
     size_t nIns = 10;
@@ -64,8 +66,9 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
+    std::mt19937 gen(42);
     std::uniform_real_distribution<> dis(-1.0, 1.0);
 
     opt.set_verbose(verbose);

@@ -9,6 +9,7 @@
 #ifndef PIQP_SETTINGS_HPP
 #define PIQP_SETTINGS_HPP
 
+#include <omp.h>
 #include <limits>
 #include <piqp/typedefs.hpp>
 
@@ -16,6 +17,7 @@ namespace piqp {
 
 template <typename T>
 struct Settings {
+    int m_threads = 1;
     T rho_init = 1e-6;
     T delta_init = 1e-4;
 

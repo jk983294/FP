@@ -29,6 +29,7 @@ struct FpOpt {
     void set_cashWeight(double w_) { m_cashWeight = w_; }
     void set_insMaxWeight(double w_) { m_insMaxWeight = w_; }
     void set_verbose(bool flag) { m_verbose = flag; }
+    void set_threads(int v) { m_threads = v; }
     void set_BetaNeutral(bool flag) { m_bBetaNeutral = flag; }
     void set_LongOnly(bool flag) { m_bLongOnly = flag; }
     void set_DollarNeutral(bool flag) { m_bDollarNeutral = flag; }
@@ -94,6 +95,7 @@ public:
     Eigen::VectorXd m_x_ub;
 
     int32_t m_status{0};
+    int32_t m_threads{1};
     double m_variance{NAN};
     double m_expected_ret{NAN};
     double m_turnover{NAN};

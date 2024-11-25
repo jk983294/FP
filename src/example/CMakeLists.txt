@@ -5,5 +5,6 @@ foreach (sourcefile ${APP_SOURCES})
 
     message("source files: " ${sourcefile} " executable: " ${executablename})
     add_executable(${executablename} ${sourcefile})
-    target_link_libraries(${executablename} fp piqp pthread rt)
+    target_link_libraries(${executablename} fp piqp ${OpenMP_CXX_LIBRARIES} pthread rt)
+    target_compile_options(${executablename} PRIVATE "${OpenMP_CXX_FLAGS}")
 endforeach (sourcefile ${APP_SOURCES})
