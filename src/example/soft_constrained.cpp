@@ -1,9 +1,10 @@
 #include <fp_opt.h>
 #include <getopt.h>
+// #include <gperftools/profiler.h>
+#include <omp.h>
 #include <iostream>
 #include <limits>
 #include <random>
-#include <omp.h>
 
 static void help() {
     std::cout << "Program options:" << std::endl;
@@ -22,7 +23,6 @@ static void help() {
 }
 
 int main(int argc, char** argv) {
-    
     FP::FpOpt opt;
     opt.set_type(FP::FpOptType::SoftConstrained);
     size_t nIns = 10;
@@ -78,6 +78,8 @@ int main(int argc, char** argv) {
 
     omp_set_num_threads(n_thread);
     opt.set_threads(n_thread);
+    // Eigen::initParallel();
+    // Eigen::setNbThreads(n_thread);  // Set to 4 threads
     printf("n_thread=%d\n", n_thread);
 
     // std::random_device rd;
@@ -128,7 +130,9 @@ int main(int argc, char** argv) {
     }
     opt.set_expected_return(ret);
     opt.set_riskAversion(riskAversion);
+    // ProfilerStart("test_capture.prof");
     opt.solve();
+    // ProfilerStop();
     if (!verbose) {
         opt.tidy_info();
     }

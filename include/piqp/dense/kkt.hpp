@@ -9,7 +9,7 @@
 #ifndef PIQP_DENSE_KKT_HPP
 #define PIQP_DENSE_KKT_HPP
 
-#include "fast_llt.hpp"
+// #include "fast_llt.hpp"
 #include <piqp/dense/data.hpp>
 #include <piqp/dense/ldlt_no_pivot.hpp>
 #include <piqp/kkt_fwd.hpp>
@@ -199,8 +199,9 @@ struct KKT {
             this->regularize_kkt(reg);
         }
 
-        if (settings.m_threads <= 1) llt.compute(kkt_mat);
-        else fast_llt(llt, kkt_mat, settings.m_threads);
+        // if (settings.m_threads <= 1) 
+        llt.compute(kkt_mat);
+        // else fast_llt(llt, kkt_mat, settings.m_threads);
 
         if (iterative_refinement) {
             this->unregularize_kkt();
