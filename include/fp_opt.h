@@ -26,6 +26,7 @@ struct FpOpt {
     void set_size(size_t nIns, bool incCash = false);
     void set_riskAversion(double v);
     void set_tvAversion(double v);
+    void set_maxIter(size_t v) { m_maxIter = v; }
     void set_cashWeight(double w_) { m_cashWeight = w_; }
     void set_insMaxWeight(double w_) { m_insMaxWeight = w_; }
     void set_verbose(bool flag) { m_verbose = flag; }
@@ -80,6 +81,7 @@ public:
     double m_cashWeight{0};
     double m_insMaxWeight{NAN}; // individual instrument max weight
     double m_maxTurnover{NAN};
+    size_t m_maxIter{250};
     size_t m_nIns{0};
     size_t m_n{0}; // if include cash, m_n = m_nIns + 1, else m_n = m_nIns
     std::vector<double> m_oldWeights;

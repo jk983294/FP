@@ -23,6 +23,7 @@ RCPP_MODULE(FP) {
         .method("set_verbose", &FP::FpOpt::set_verbose)
         .method("set_LongOnly", &FP::FpOpt::set_LongOnly)
         .method("set_oldWeights", &FP::FpOpt::set_oldWeights)
+        .method("set_maxIter", &FP::FpOpt::set_maxIter)
         .method("add_sector_constrain", &FP::FpOpt::add_sector_constrain)
         .method("tidy_info", &FP::FpOpt::tidy_info)
         .method("get_type", &FP::FpOpt::get_type)
