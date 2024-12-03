@@ -64,7 +64,7 @@ public:
     bool m_bDollarNeutral{false}; // long == short
     bool m_bBetaNeutral{false}; // beta^T * weight = 0
     bool m_bLongOnly{false};
-    bool m_verbose{true};
+    bool m_verbose{false};
     bool m_tvConstrain{false};
     bool m_covConstrain{false};
     FpOptType m_optType{FpOptType::SoftConstrained};
