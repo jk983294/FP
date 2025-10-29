@@ -20,18 +20,21 @@ if (OPENMP_FOUND)
     message ("${OpenMP_CXX_FLAGS}: " ${OpenMP_CXX_FLAGS})
 endif()
 
-SET(CMAKE_CXX_FLAGS "-std=c++17 -O3 -s -Wall -Werror")
-# SET(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall -Werror")
+# SET(CMAKE_CXX_FLAGS "-std=c++17 -O3 -s -Wall -Werror")
+SET(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall -Werror")
 #SET(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall -Werror -fsanitize=address -fno-omit-frame-pointer")
 
 message ("cxx Flags: " ${CMAKE_CXX_FLAGS})
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 
+add_definitions(-DPIQP_STD_OPTIONAL)
+
 include_directories(SYSTEM /opt/3rd/common/include)
 include_directories(SYSTEM /opt/3rd/Eigen)
 include_directories(include)
-include_directories(/opt/version/latest/zergtool/include)
+include_directories(/opt/version/latest/zerg/include)
+#include_directories(/opt/version/latest/ornate/include)
 
 link_directories(/opt/3rd/common/lib)
 
@@ -39,5 +42,5 @@ link_directories(/opt/3rd/common/lib)
 install(FILES include/fp_opt.h DESTINATION include)
 
 add_subdirectory(src)
-add_subdirectory(pybind11)
-add_subdirectory(pyfp)
+ add_subdirectory(pybind11)
+ add_subdirectory(pyfp)

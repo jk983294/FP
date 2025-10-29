@@ -8,17 +8,19 @@
 #ifndef PIQP_LDLT_NO_PIVOT_TPP
 #define PIQP_LDLT_NO_PIVOT_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/dense/ldlt_no_pivot.hpp>
+#include "piqp/common.hpp"
+#include "piqp/dense/ldlt_no_pivot.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace dense {
+namespace dense
+{
 
 extern template class LDLTNoPivot<common::Mat, Eigen::Lower>;
 
-}  // namespace dense
+} // namespace dense
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_LDLT_NO_PIVOT_TPP
+#endif //PIQP_LDLT_NO_PIVOT_TPP

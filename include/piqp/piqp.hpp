@@ -8,8 +8,8 @@
 #ifndef PIQP_PIQP_HPP
 #define PIQP_PIQP_HPP
 
-#include <piqp/fwd.hpp>
-#include <piqp/typedefs.hpp>
+#include "piqp/fwd.hpp"
+#include "piqp/typedefs.hpp"
 #include "piqp/solver.hpp"
 
-#endif  // PIQP_PIQP_HPP
+#endif //PIQP_PIQP_HPP

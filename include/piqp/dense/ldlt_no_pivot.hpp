@@ -21,6 +21,7 @@
 #define PIQP_LDLT_NO_PIVOT_HPP
 
 #include <iostream>
+#include "piqp/common.hpp"
 #include <Eigen/Dense>
 
 namespace piqp

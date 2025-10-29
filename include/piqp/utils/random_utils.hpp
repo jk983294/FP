@@ -11,23 +11,27 @@
 
 #include <random>
 
-#include <piqp/dense/model.hpp>
-#include <piqp/sparse/model.hpp>
-#include <piqp/typedefs.hpp>
+#include "piqp/typedefs.hpp"
+#include "piqp/dense/model.hpp"
+#include "piqp/sparse/model.hpp"
 
-// adapted from
-// https://github.com/Simple-Robotics/proxsuite/blob/main/include/proxsuite/proxqp/utils/random_qp_problems.hpp
+// adapted from https://github.com/Simple-Robotics/proxsuite/blob/main/include/proxsuite/proxqp/utils/random_qp_problems.hpp
 
-namespace piqp {
+namespace piqp
+{
 
-namespace rand {
+namespace rand
+{
 
 std::mt19937 gen(42);
 std::uniform_real_distribution<double> uniform_dist(0.0, 1.0);
+std::uniform_real_distribution<double> uniform_dist_pos(0.1, 100.0);
 std::normal_distribution<double> normal_dist;
 
-template <typename T>
-Vec<T> vector_rand(isize n) {
+
+template<typename T>
+Vec<T> vector_rand(isize n)
+{
     Vec<T> v(n);
 
     for (isize i = 0; i < n; i++) {
@@ -37,8 +41,21 @@ Vec<T> vector_rand(isize n) {
     return v;
 }
 
-template <typename T>
-Mat<T> dense_matrix_rand(isize n, isize m) {
+template<typename T>
+Vec<T> vector_rand_strictly_positive(isize n)
+{
+    Vec<T> v(n);
+
+    for (isize i = 0; i < n; i++) {
+        v(i) = T(uniform_dist_pos(gen));
+    }
+
+    return v;
+}
+
+template<typename T>
+Mat<T> dense_matrix_rand(isize n, isize m)
+{
     Mat<T> A(n, m);
     for (isize i = 0; i < n; i++) {
         for (isize j = 0; j < m; ++j) {
@@ -48,8 +65,9 @@ Mat<T> dense_matrix_rand(isize n, isize m) {
     return A;
 }
 
-template <typename T, typename I>
-SparseMat<T, I> sparse_matrix_rand(isize n, isize m, T p) {
+template<typename T, typename I>
+SparseMat<T, I> sparse_matrix_rand(isize n, isize m, T p)
+{
     SparseMat<T, I> A(n, m);
 
     for (isize i = 0; i < n; i++) {
@@ -63,8 +81,9 @@ SparseMat<T, I> sparse_matrix_rand(isize n, isize m, T p) {
     return A;
 }
 
-template <typename T>
-Mat<T> dense_positive_definite_upper_triangular_rand(isize n, T rho = T(1e-2)) {
+template<typename T>
+Mat<T> dense_positive_definite_upper_triangular_rand(isize n, T rho = T(1e-2))
+{
     Mat<T> mat = Mat<T>::Zero(n, n);
     for (isize i = 0; i < n; i++) {
         for (isize j = i + 1; j < n; ++j) {
@@ -82,8 +101,9 @@ Mat<T> dense_positive_definite_upper_triangular_rand(isize n, T rho = T(1e-2)) {
     return mat;
 }
 
-template <typename T, typename I>
-SparseMat<T, I> sparse_positive_definite_upper_triangular_rand(isize n, T p, T rho = T(1e-2)) {
+template<typename T, typename I>
+SparseMat<T, I> sparse_positive_definite_upper_triangular_rand(isize n, T p, T rho = T(1e-2))
+{
     SparseMat<T, I> P(n, n);
     P.setZero();
 
@@ -107,86 +127,130 @@ SparseMat<T, I> sparse_positive_definite_upper_triangular_rand(isize n, T p, T r
     return P;
 }
 
-template <typename T>
-dense::Model<T> dense_strongly_convex_qp(isize dim, isize n_eq, isize n_ineq, T bounds_perc = T(0.5),
-                                         T strong_convexity_factor = T(1e-2)) {
+template<typename T>
+dense::Model<T> dense_strongly_convex_qp(isize dim, isize n_eq, isize n_ineq,
+                                         T bounds_perc = T(0.5), T strong_convexity_factor = T(1e-2))
+{
     Mat<T> P = dense_positive_definite_upper_triangular_rand<T>(dim, strong_convexity_factor);
     Mat<T> A = dense_matrix_rand<T>(n_eq, dim);
     Mat<T> G = dense_matrix_rand<T>(n_ineq, dim);
 
     Vec<T> x_sol = vector_rand<T>(dim);
 
-    Vec<T> delta(n_ineq);
-    delta.setZero();
-    for (isize i = 0; i < n_ineq; i++) {
-        // 30% of ineq constraints are inactive
-        if (uniform_dist(gen) < 0.3) {
-            delta(i) = uniform_dist(gen);
-        }
-    }
-
     Vec<T> c = vector_rand<T>(dim);
     Vec<T> b(n_eq);
     if (n_eq > 0) {
         b = A * x_sol;
     }
-    Vec<T> h(n_ineq);
-    if (n_ineq > 0) {
-        h = G * x_sol + delta;
+
+    Vec<T> delta_u(n_ineq);
+    Vec<T> delta_l(n_ineq);
+    delta_u.setZero();
+    delta_l.setZero();
+    for (isize i = 0; i < n_ineq; i++) {
+        // 30% of ineq constraints are inactive
+        if (uniform_dist(gen) < 0.3) {
+            delta_u(i) = uniform_dist(gen);
+        }
+        if (uniform_dist(gen) < 0.3) {
+            delta_l(i) = uniform_dist(gen);
+        }
     }
 
-    Vec<T> x_lb = Vec<T>::Constant(dim, -std::numeric_limits<T>::infinity());
-    Vec<T> x_ub = Vec<T>::Constant(dim, std::numeric_limits<T>::infinity());
+    Vec<T> h_l(n_ineq);
+    Vec<T> h_u(n_ineq);
+    if (n_ineq > 0) {
+        h_l = G * x_sol - delta_l;
+        h_u = G * x_sol + delta_u;
+    }
+    for (isize i = 0; i < n_ineq; i++) {
+        double rand = uniform_dist(gen);
+        // 33% only have lower bounds
+        if (rand < 0.33) {
+            h_l(i) = -std::numeric_limits<T>::infinity();
+        }
+        // 33% only have upper bounds
+        else if (rand < 0.66) {
+            h_u(i) = std::numeric_limits<T>::infinity();
+        }
+    }
+
+    Vec<T> x_l = Vec<T>::Constant(dim, -std::numeric_limits<T>::infinity());
+    Vec<T> x_u = Vec<T>::Constant(dim, std::numeric_limits<T>::infinity());
     for (isize i = 0; i < dim; i++) {
         double rand = uniform_dist(gen);
         if (rand < bounds_perc / 3) {
-            x_lb(i) = x_sol(i);
+            x_l(i) = x_sol(i);
             // 50% of are inactive
             if (uniform_dist(gen) < 0.5) {
-                x_lb(i) -= uniform_dist(gen);
+                x_l(i) -= uniform_dist(gen);
             }
-        } else if (rand < bounds_perc * 2 / 3) {
-            x_ub(i) = x_sol(i);
+        }
+        else if (rand < bounds_perc * 2 / 3) {
+            x_u(i) = x_sol(i);
             // 50% of are inactive
             if (uniform_dist(gen) < 0.5) {
-                x_ub(i) += uniform_dist(gen);
+                x_u(i) += uniform_dist(gen);
             }
-        } else if (rand < bounds_perc) {
-            x_lb(i) = x_sol(i);
-            x_ub(i) = x_sol(i);
+        }
+        else if (rand < bounds_perc) {
+            x_l(i) = x_sol(i);
+            x_u(i) = x_sol(i);
             if (uniform_dist(gen) < 0.5) {
-                x_lb(i) -= uniform_dist(gen);
+                x_l(i) -= uniform_dist(gen);
             } else {
-                x_ub(i) += uniform_dist(gen);
+                x_u(i) += uniform_dist(gen);
             }
         }
     }
 
-    return dense::Model<T>(P, c, A, b, G, h, x_lb, x_ub);
+    return dense::Model<T>(P, c, A, b, G, h_l, h_u, x_l, x_u);
 }
 
-template <typename T, typename I>
+template<typename T, typename I>
 sparse::Model<T, I> sparse_strongly_convex_qp(isize dim, isize n_eq, isize n_ineq, T sparsity_factor,
-                                              T bounds_perc = T(0.5), T strong_convexity_factor = T(1e-2)) {
-    SparseMat<T, I> P =
-        sparse_positive_definite_upper_triangular_rand<T, I>(dim, sparsity_factor, strong_convexity_factor);
+                                              T bounds_perc = T(0.5), T strong_convexity_factor = T(1e-2))
+{
+    SparseMat<T, I> P = sparse_positive_definite_upper_triangular_rand<T, I>(dim, sparsity_factor, strong_convexity_factor);
     SparseMat<T, I> A = sparse_matrix_rand<T, I>(n_eq, dim, sparsity_factor);
     SparseMat<T, I> G = sparse_matrix_rand<T, I>(n_ineq, dim, sparsity_factor);
 
     Vec<T> x_sol = vector_rand<T>(dim);
 
-    Vec<T> delta(n_ineq);
-    delta.setZero();
+    Vec<T> delta_u(n_ineq);
+    Vec<T> delta_l(n_ineq);
+    delta_u.setZero();
+    delta_l.setZero();
     for (isize i = 0; i < n_ineq; i++) {
         // 30% of ineq constraints are inactive
         if (uniform_dist(gen) < 0.3) {
-            delta(i) = uniform_dist(gen);
+            delta_u(i) = uniform_dist(gen);
+        }
+        if (uniform_dist(gen) < 0.3) {
+            delta_l(i) = uniform_dist(gen);
         }
     }
 
     Vec<T> c = vector_rand<T>(dim);
     Vec<T> b = A * x_sol;
-    Vec<T> h = G * x_sol + delta;
+
+    Vec<T> h_l(n_ineq);
+    Vec<T> h_u(n_ineq);
+    if (n_ineq > 0) {
+        h_l = G * x_sol - delta_l;
+        h_u = G * x_sol + delta_u;
+    }
+    for (isize i = 0; i < n_ineq; i++) {
+        double rand = uniform_dist(gen);
+        // 33% only have lower bounds
+        if (rand < 0.33) {
+            h_l(i) = -std::numeric_limits<T>::infinity();
+        }
+        // 33% only have upper bounds
+        else if (rand < 0.66) {
+            h_u(i) = std::numeric_limits<T>::infinity();
+        }
+    }
 
     Vec<T> x_lb = Vec<T>::Constant(dim, -std::numeric_limits<T>::infinity());
     Vec<T> x_ub = Vec<T>::Constant(dim, std::numeric_limits<T>::infinity());
@@ -198,7 +262,8 @@ sparse::Model<T, I> sparse_strongly_convex_qp(isize dim, isize n_eq, isize n_ine
             if (uniform_dist(gen) < 0.5) {
                 x_lb(i) -= uniform_dist(gen);
             }
-        } else if (rand < bounds_perc * 2 / 3) {
+        }
+        else if (rand < bounds_perc * 2 / 3) {
             x_ub(i) = x_sol(i);
             // 50% of are inactive
             if (uniform_dist(gen) < 0.5) {
@@ -217,11 +282,11 @@ sparse::Model<T, I> sparse_strongly_convex_qp(isize dim, isize n_eq, isize n_ine
         }
     }
 
-    return sparse::Model<T, I>(P, c, A, b, G, h, x_lb, x_ub);
+    return sparse::Model<T, I>(P, c, A, b, G, h_l, h_u, x_lb, x_ub);
 }
 
-}  // namespace rand
+} // namespace rand
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_UTILS_RANDOM_UTILS_HPP
+#endif //PIQP_UTILS_RANDOM_UTILS_HPP

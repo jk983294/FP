@@ -8,19 +8,22 @@
 #ifndef PIQP_SPARSE_KKT_TPP
 #define PIQP_SPARSE_KKT_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/kkt.hpp>
+#include "piqp/common.hpp"
+#include "piqp/sparse/kkt.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace sparse {
+namespace sparse
+{
 
-extern template struct KKTImpl<KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_FULL, common::sparse::Ordering>,
-                               common::Scalar, common::StorageIndex, KKTMode::KKT_FULL>;
-extern template struct KKT<common::Scalar, common::StorageIndex>;
+extern template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_FULL, common::sparse::Ordering>;
+extern template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_EQ_ELIMINATED, common::sparse::Ordering>;
+extern template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_INEQ_ELIMINATED, common::sparse::Ordering>;
+extern template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_ALL_ELIMINATED, common::sparse::Ordering>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_SPARSE_KKT_TPP
+#endif //PIQP_SPARSE_KKT_TPP

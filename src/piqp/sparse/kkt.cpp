@@ -5,17 +5,19 @@
 // This source code is licensed under the BSD 2-Clause License found in the
 // LICENSE file in the root directory of this source tree.
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/kkt.hpp>
+#include "piqp/sparse/kkt.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace sparse {
+namespace sparse
+{
 
-template struct KKTImpl<KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_FULL, common::sparse::Ordering>,
-                        common::Scalar, common::StorageIndex, KKTMode::KKT_FULL>;
-template struct KKT<common::Scalar, common::StorageIndex>;
+template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_FULL, common::sparse::Ordering>;
+template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_EQ_ELIMINATED, common::sparse::Ordering>;
+template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_INEQ_ELIMINATED, common::sparse::Ordering>;
+template class KKT<common::Scalar, common::StorageIndex, KKTMode::KKT_ALL_ELIMINATED, common::sparse::Ordering>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace piqp
+} // namespace piqp

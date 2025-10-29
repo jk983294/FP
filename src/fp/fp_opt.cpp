@@ -44,6 +44,10 @@ void FpOpt::solve() {
             handle_SoftConstrained();
             break;
         }
+        case FpOptType::Barra: {
+          handle_barra();
+          break;
+        }
         default:
             printf("should not print here!\n");
     }
@@ -77,7 +81,7 @@ void FpOpt::set_covariance(const Eigen::MatrixXd& cov) {
     }
     
     m_covConstrain = true;
-    if (m_optType == FpOptType::SoftConstrained) {
+    if (m_optType == FpOptType::SoftConstrained || m_optType == FpOptType::Barra) {
         m_orig_cov = ToVector(cov);
         return;
     }

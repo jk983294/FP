@@ -8,28 +8,32 @@
 #ifndef PIQP_COMMON_HPP
 #define PIQP_COMMON_HPP
 
-#include <piqp/typedefs.hpp>
+#include "piqp/typedefs.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace dense {
+namespace dense
+{
 
-template <typename T>
+template<typename T>
 class RuizEquilibration;
 
-}  // namespace dense
+} // namespace dense
 
-namespace sparse {
+namespace sparse
+{
 
-template <typename T, typename I>
+template<typename T, typename I>
 class RuizEquilibration;
 
-template <typename I>
+template<typename I>
 class AMDOrdering;
 
-}  // namespace sparse
+} // namespace sparse
 
-namespace common {
+namespace common
+{
 
 using Scalar = double;
 using StorageIndex = int;
@@ -37,21 +41,23 @@ using StorageIndex = int;
 using SparseMat = ::piqp::SparseMat<common::Scalar, common::StorageIndex>;
 using Mat = ::piqp::Mat<common::Scalar>;
 
-namespace dense {
+namespace dense
+{
 
 using Preconditioner = ::piqp::dense::RuizEquilibration<common::Scalar>;
 
-}  // namespace dense
+} // namespace dense
 
-namespace sparse {
+namespace sparse
+{
 
 using Preconditioner = ::piqp::sparse::RuizEquilibration<common::Scalar, common::StorageIndex>;
 using Ordering = ::piqp::sparse::AMDOrdering<StorageIndex>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace common
+} // namespace common
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_COMMON_HPP
+#endif //PIQP_COMMON_HPP

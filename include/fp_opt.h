@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Eigen/Dense>
 #include <vector>
 
@@ -7,6 +9,7 @@ enum class FpOptType : int32_t {
     MinimumVariance,
     MeanVariance,
     Constrained,
+    Barra,
     SoftConstrained, // tv into penalty
 };
 
@@ -29,12 +32,14 @@ struct FpOpt {
     void set_maxIter(size_t v) { m_maxIter = v; }
     void set_cashWeight(double w_) { m_cashWeight = w_; }
     void set_insMaxWeight(double w_) { m_insMaxWeight = w_; }
+    void set_insMinWeight(double w_) { m_insMinWeight = w_; }
     void set_verbose(bool flag) { m_verbose = flag; }
-    void set_threads(int v) { m_threads = v; }
     void set_BetaNeutral(bool flag) { m_bBetaNeutral = flag; }
     void set_LongOnly(bool flag) { m_bLongOnly = flag; }
     void set_DollarNeutral(bool flag) { m_bDollarNeutral = flag; }
     void set_oldWeights(const std::vector<double>& ows);
+    void set_benchWeights(const std::vector<double>& v);
+    void add_constrain(const std::vector<double>& coefs, double lb, double ub, bool againstBench=true);
     void add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& sectors,
         const std::vector<double>& sector_wgts);
     void add_tv_constrain(const std::vector<double>& old_wgts, double tv = 0.2);
@@ -51,6 +56,7 @@ private:
     void handle_MeanVariance();
     void handle_Constrained();
     void handle_SoftConstrained();
+    void handle_barra();
     void sanity_check();
     void add_ins_weight_constrain();
     void _tv_constrain();
@@ -80,13 +86,16 @@ public:
     double m_tvAversion{1.0};
     double m_cashWeight{0};
     double m_insMaxWeight{NAN}; // individual instrument max weight
+    double m_insMinWeight{NAN}; // individual instrument min weight
     double m_maxTurnover{NAN};
     size_t m_maxIter{250};
     size_t m_nIns{0};
     size_t m_n{0}; // if include cash, m_n = m_nIns + 1, else m_n = m_nIns
     std::vector<double> m_oldWeights;
+    std::vector<double> m_benchWeights;
     std::vector<double> m_y_hat;
     std::vector<double> m_orig_cov;
+    std::vector<double> m_lh, m_uh;
     Eigen::MatrixXd m_P; // cov matrix
     Eigen::VectorXd m_c; // return vector
     Eigen::MatrixXd m_A; // equality constrains, Ax = b
@@ -97,7 +106,6 @@ public:
     Eigen::VectorXd m_x_ub;
 
     int32_t m_status{0};
-    int32_t m_threads{1};
     double m_variance{NAN};
     double m_expected_ret{NAN};
     double m_turnover{NAN};

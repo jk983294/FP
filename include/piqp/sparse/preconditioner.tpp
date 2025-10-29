@@ -8,17 +8,19 @@
 #ifndef PIQP_SPARSE_PRECONDITIONER_TPP
 #define PIQP_SPARSE_PRECONDITIONER_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/preconditioner.hpp>
+#include "piqp/common.hpp"
+#include "piqp/sparse/preconditioner.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace sparse {
+namespace sparse
+{
 
 extern template class RuizEquilibration<common::Scalar, common::StorageIndex>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_SPARSE_PRECONDITIONER_TPP
+#endif //PIQP_SPARSE_PRECONDITIONER_TPP

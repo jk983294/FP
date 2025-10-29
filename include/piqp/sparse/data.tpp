@@ -8,17 +8,19 @@
 #ifndef PIQP_SPARSE_DATA_TPP
 #define PIQP_SPARSE_DATA_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/data.hpp>
+#include "piqp/common.hpp"
+#include "piqp/sparse/data.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace sparse {
+namespace sparse
+{
 
 extern template struct Data<common::Scalar, common::StorageIndex>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_SPARSE_DATA_TPP
+#endif //PIQP_SPARSE_DATA_TPP

@@ -5,15 +5,16 @@
 // This source code is licensed under the BSD 2-Clause License found in the
 // LICENSE file in the root directory of this source tree.
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/ldlt.hpp>
+#include "piqp/sparse/ldlt.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace sparse {
+namespace sparse
+{
 
 template struct LDLt<common::Scalar, common::StorageIndex>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace piqp
+} // namespace piqp

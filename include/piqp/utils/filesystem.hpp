@@ -8,14 +8,25 @@
 #ifndef PIQP_UTILS_FILESYSTEM_HPP
 #define PIQP_UTILS_FILESYSTEM_HPP
 
+#include "piqp/fwd.hpp"
+
+#ifdef PIQP_STD_FILESYSTEM
 #include <filesystem>
-#include <piqp/fwd.hpp>
+#else
+#include "piqp/utils/ghc_filesystem.hpp"
+#endif
 
-namespace piqp {
+namespace piqp
+{
 
+#ifdef PIQP_STD_FILESYSTEM
 #include <filesystem>
 namespace fs = std::filesystem;
+#else
+#include "filesystem.hpp"
+namespace fs = ghc::filesystem;
+#endif
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_UTILS_FILESYSTEM_HPP
+#endif //PIQP_UTILS_FILESYSTEM_HPP

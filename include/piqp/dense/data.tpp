@@ -8,17 +8,19 @@
 #ifndef PIQP_DENSE_DATA_TPP
 #define PIQP_DENSE_DATA_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/dense/data.hpp>
+#include "piqp/common.hpp"
+#include "piqp/dense/data.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace dense {
+namespace dense
+{
 
 extern template struct Data<common::Scalar>;
 
-}  // namespace dense
+} // namespace dense
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_DENSE_DATA_TPP
+#endif //PIQP_DENSE_DATA_TPP

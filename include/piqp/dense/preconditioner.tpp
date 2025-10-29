@@ -8,17 +8,19 @@
 #ifndef PIQP_DENSE_PRECONDITIONER_TPP
 #define PIQP_DENSE_PRECONDITIONER_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/dense/preconditioner.hpp>
+#include "piqp/common.hpp"
+#include "piqp/dense/preconditioner.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace dense {
+namespace dense
+{
 
 extern template class RuizEquilibration<common::Scalar>;
 
-}  // namespace dense
+} // namespace dense
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_DENSE_PRECONDITIONER_TPP
+#endif //PIQP_DENSE_PRECONDITIONER_TPP

@@ -77,7 +77,6 @@ int main(int argc, char** argv) {
     }
 
     omp_set_num_threads(n_thread);
-    opt.set_threads(n_thread);
     // Eigen::initParallel();
     // Eigen::setNbThreads(n_thread);  // Set to 4 threads
     printf("n_thread=%d\n", n_thread);

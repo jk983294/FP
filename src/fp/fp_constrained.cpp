@@ -7,19 +7,35 @@ namespace FP {
 void FpOpt::add_ins_weight_constrain() {
     double lower_ = -2.0;
     double upper_ = 2.0;
-    if (m_bLongOnly) {
-        lower_ = 0.0;
-        if (std::isfinite(m_insMaxWeight)) {
-            upper_ = m_insMaxWeight;
-        }
-    } else {
-        if (std::isfinite(m_insMaxWeight)) {
-            lower_ = -std::abs(m_insMaxWeight);
-            upper_ = std::abs(m_insMaxWeight);
-        }
+    if (std::isfinite(m_insMaxWeight)) {
+      upper_ = m_insMaxWeight;
+    }
+    if (std::isfinite(m_insMinWeight)) {
+      lower_ = m_insMinWeight;
     }
     m_x_lb = Eigen::VectorXd::Constant(m_n, lower_);
     m_x_ub = Eigen::VectorXd::Constant(m_n, upper_);
+    printf("ins weight %f,%f\n", lower_, upper_);
+}
+
+void FpOpt::add_constrain(const std::vector<double>& coefs, double lb, double ub, bool againstBench) {
+  if (coefs.size() != m_n) {
+    throw std::runtime_error("expect coefs.size() == " + std::to_string(m_n));
+  }
+  const Eigen::VectorXd coefs_ = Eigen::Map<const Eigen::VectorXd>(coefs.data(), m_n);
+  if (againstBench) {
+    if (m_benchWeights.size() != m_n) {
+      throw std::runtime_error("add_constrain expect m_benchWeights.size() == " + std::to_string(m_n));
+    }
+    auto v1 = Eigen::Map<const Eigen::VectorXd>(m_benchWeights.data(), m_n);
+    double v3 = v1.dot(coefs_);
+    lb += v3;
+    ub += v3;
+  }
+  append(m_G, coefs_, false);
+  std::cout << m_G << std::endl;
+  m_lh.push_back(lb);
+  m_uh.push_back(ub);
 }
 
 void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& _sectors,
@@ -84,6 +100,15 @@ void FpOpt::set_tvAversion(double v) {
     } else {
         m_tvConstrain = false;
     }
+}
+
+void FpOpt::set_benchWeights(const std::vector<double>& v) {
+  m_benchWeights = v;
+  if (v.empty()) {
+    m_benchWeights.resize(m_n, 0.);
+  } else if (v.size() != m_n) {
+    throw std::runtime_error("expect m_benchWeights.size() == m_n " + std::to_string(m_n));
+  }
 }
 
 void FpOpt::set_oldWeights(const std::vector<double>& ows) { 
@@ -169,9 +194,9 @@ void FpOpt::handle_Constrained() {
     solver.settings().verbose = m_verbose;
     solver.settings().compute_timings = m_verbose;
     if (m_G.rows() > 0) {
-        solver.setup(m_P, _c, m_A, m_b, m_G, m_h, m_x_lb, m_x_ub);
+        solver.setup(m_P, _c, m_A, m_b, m_G, std::nullopt, m_h, m_x_lb, m_x_ub);
     } else {
-        solver.setup(m_P, _c, m_A, m_b, std::nullopt, std::nullopt, m_x_lb, m_x_ub);
+        solver.setup(m_P, _c, m_A, m_b, std::nullopt, std::nullopt, std::nullopt, m_x_lb, m_x_ub);
     }
 
     piqp::Status status = solver.solve();

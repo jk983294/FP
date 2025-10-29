@@ -8,17 +8,19 @@
 #ifndef PIQP_SPARSE_LDLT_TPP
 #define PIQP_SPARSE_LDLT_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/ldlt.hpp>
+#include "piqp/common.hpp"
+#include "piqp/sparse/ldlt.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace sparse {
+namespace sparse
+{
 
 extern template struct LDLt<common::Scalar, common::StorageIndex>;
 
-}  // namespace sparse
+} // namespace sparse
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_SPARSE_LDLT_TPP
+#endif //PIQP_SPARSE_LDLT_TPP

@@ -30,7 +30,7 @@ int main()
     piqp::DenseSolver<double> solver;
     solver.settings().verbose = true;
     solver.settings().compute_timings = true;
-    solver.setup(P, c, A, b, G, h, x_lb, x_ub);
+    solver.setup(P, c, A, b, G, std::nullopt, h, x_lb, x_ub);
 
     piqp::Status status = solver.solve();
 

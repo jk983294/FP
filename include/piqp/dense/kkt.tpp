@@ -8,17 +8,19 @@
 #ifndef PIQP_DENSE_KKT_TPP
 #define PIQP_DENSE_KKT_TPP
 
-#include <piqp/common.hpp>
-#include <piqp/sparse/kkt.hpp>
+#include "piqp/common.hpp"
+#include "piqp/dense/kkt.hpp"
 
-namespace piqp {
+namespace piqp
+{
 
-namespace dense {
+namespace dense
+{
 
-extern template struct KKT<common::Scalar>;
+extern template class KKT<common::Scalar>;
 
-}  // namespace dense
+} // namespace dense
 
-}  // namespace piqp
+} // namespace piqp
 
-#endif  // PIQP_DENSE_KKT_TPP
+#endif //PIQP_DENSE_KKT_TPP
