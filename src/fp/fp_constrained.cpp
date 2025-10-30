@@ -32,10 +32,10 @@ void FpOpt::add_constrain(const std::vector<double>& coefs, double lb, double ub
     lb += v3;
     ub += v3;
   }
-  append(m_G, coefs_, false);
+  append(m_G, coefs_, true);
   std::cout << m_G << std::endl;
-  m_lh.push_back(lb);
-  m_uh.push_back(ub);
+  append(m_lh, lb);
+  append(m_uh, lb);
 }
 
 void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& _sectors,
@@ -65,7 +65,7 @@ void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std:
                 }
             }
             append(m_G, vec, true);
-            append(m_h, wgt);
+            append(m_uh, wgt);
             if (m_verbose) {
                 std::cout << "add " << vec.transpose() << " <= " << wgt << std::endl;
             }
@@ -82,12 +82,12 @@ void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std:
                 }
             }
             append(m_G, vec, true);
-            if (_sectors.size() == _sector_wgts.size()) append(m_h, _sector_wgts[i]);
-            else if (!_sector_wgts.empty()) append(m_h, _sector_wgts.front());
-            else append(m_h, dft_wgt);
+            if (_sectors.size() == _sector_wgts.size()) append(m_uh, _sector_wgts[i]);
+            else if (!_sector_wgts.empty()) append(m_uh, _sector_wgts.front());
+            else append(m_uh, dft_wgt);
 
             if (m_verbose) {
-                std::cout << "add " << vec.transpose() << " <= " << m_h(m_h.size() - 1) << std::endl;
+                std::cout << "add " << vec.transpose() << " <= " << m_uh(m_uh.size() - 1) << std::endl;
             }
         }
     }
@@ -171,7 +171,7 @@ void FpOpt::_tv_constrain() {
             new_h[m_n + i] = -m_oldWeights[i];
         }
         append(m_G, new_G, true);
-        append(m_h, new_h);
+        append(m_uh, new_h);
     }
 }
 
@@ -194,7 +194,7 @@ void FpOpt::handle_Constrained() {
     solver.settings().verbose = m_verbose;
     solver.settings().compute_timings = m_verbose;
     if (m_G.rows() > 0) {
-        solver.setup(m_P, _c, m_A, m_b, m_G, std::nullopt, m_h, m_x_lb, m_x_ub);
+        solver.setup(m_P, _c, m_A, m_b, m_G, std::nullopt, m_uh, m_x_lb, m_x_ub);
     } else {
         solver.setup(m_P, _c, m_A, m_b, std::nullopt, std::nullopt, std::nullopt, m_x_lb, m_x_ub);
     }
@@ -227,7 +227,7 @@ void FpOpt::handle_Constrained() {
         std::cout << "b = " << m_b.transpose() << std::endl;
         if (m_G.rows() > 0) {
             std::cout << "G :\n" << m_G << std::endl;
-            std::cout << "h = " << m_h.transpose() << std::endl;
+            std::cout << "h = " << m_uh.transpose() << std::endl;
         }
         if (m_tvConstrain) {
             std::cout << "corr :\n " << cov2corr(m_P.block(0, 0, m_n, m_n)) << std::endl;

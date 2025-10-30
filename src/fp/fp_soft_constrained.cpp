@@ -61,7 +61,7 @@ void FpOpt::handle_SoftConstrained() {
     solver.settings().compute_timings = m_verbose;
     solver.settings().max_iter = m_maxIter;
     if (m_G.rows() > 0) {
-        solver.setup(m_P, _c, m_A, m_b, m_G, std::nullopt, m_h, m_x_lb, m_x_ub);
+        solver.setup(m_P, _c, m_A, m_b, m_G, std::nullopt, m_uh, m_x_lb, m_x_ub);
     } else {
         solver.setup(m_P, _c, m_A, m_b, std::nullopt, std::nullopt, std::nullopt, m_x_lb, m_x_ub);
     }
@@ -94,7 +94,7 @@ void FpOpt::handle_SoftConstrained() {
         std::cout << "b = " << m_b.transpose() << std::endl;
         if (m_G.rows() > 0) {
             std::cout << "G :\n" << m_G << std::endl;
-            std::cout << "h = " << m_h.transpose() << std::endl;
+            std::cout << "h = " << m_uh.transpose() << std::endl;
         }
         if (m_covConstrain) std::cout << "corr :\n " << cov2corr(real_cov) << std::endl;
         std::cout << "weight bound [" << m_x_lb[0] << ", " << m_x_ub[0] << "]" << std::endl;

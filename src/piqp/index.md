@@ -10,8 +10,8 @@ $$
 \begin{aligned}
 \min_{x} \quad & \frac{1}{2} x^\top P x + c^\top x \\
 \text {s.t.}\quad & Ax=b, \\
-& Gx \leq h, \\
-& x_{lb} \leq x \leq x_{ub},
+& h_l \leq Gx \leq h_u, \\
+& x_l \leq x \leq x_u,
 \end{aligned}
 $$
 

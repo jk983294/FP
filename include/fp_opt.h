@@ -95,13 +95,13 @@ public:
     std::vector<double> m_benchWeights;
     std::vector<double> m_y_hat;
     std::vector<double> m_orig_cov;
-    std::vector<double> m_lh, m_uh;
     Eigen::MatrixXd m_P; // cov matrix
     Eigen::VectorXd m_c; // return vector
     Eigen::MatrixXd m_A; // equality constrains, Ax = b
     Eigen::VectorXd m_b;
     Eigen::MatrixXd m_G; // inequality constrains, Gx <= h
-    Eigen::VectorXd m_h;
+    Eigen::VectorXd m_lh;
+    Eigen::VectorXd m_uh;
     Eigen::VectorXd m_x_lb; // bound x_lb <= x <= x_ub
     Eigen::VectorXd m_x_ub;
 

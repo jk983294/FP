@@ -18,15 +18,13 @@ void FpOpt::handle_barra() {
     m_A = Eigen::MatrixXd::Constant(1, m_n, 1.0);
     m_b = Eigen::VectorXd::Constant(1, 1.0 - m_cashWeight);
     add_ins_weight_constrain();
-    auto _lh = Eigen::Map<const Eigen::VectorXd>(m_lh.data(), m_n);
-    auto _uh = Eigen::Map<const Eigen::VectorXd>(m_uh.data(), m_n);
 
     piqp::DenseSolver<double> solver;
     solver.settings().verbose = m_verbose;
     solver.settings().compute_timings = m_verbose;
     solver.settings().max_iter = m_maxIter;
 
-    solver.setup(m_P, _c, m_A, m_b, m_G, _lh, _uh, m_x_lb, m_x_ub);
+    solver.setup(m_P, _c, m_A, m_b, m_G, m_lh, m_uh, m_x_lb, m_x_ub);
 
     piqp::Status status = solver.solve();
 
@@ -54,7 +52,7 @@ void FpOpt::handle_barra() {
         std::cout << "b = " << m_b.transpose() << std::endl;
         if (m_G.rows() > 0) {
             std::cout << "G :\n" << m_G << std::endl;
-            std::cout << "h = " << m_h.transpose() << std::endl;
+            std::cout << "h = " << m_uh.transpose() << std::endl;
         }
         if (m_covConstrain) std::cout << "corr :\n " << cov2corr(real_cov) << std::endl;
         std::cout << "weight bound [" << m_x_lb[0] << ", " << m_x_ub[0] << "]" << std::endl;
