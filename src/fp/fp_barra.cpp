@@ -5,19 +5,53 @@
 
 namespace FP {
 void FpOpt::handle_barra() {
-    if (m_bIncludeCash) throw std::runtime_error("not support m_bIncludeCash, use m_cashWeight instead!");
-
     /**
-     * min -w^t * r
-     * s.t. w^t * i = 1.
-     *      0. <= w <= m_insMaxWeight
+     * min -x^t * r
+     * s.t. x^t * i = 1.
+     *      0. <= x <= m_insMaxWeight
      */
     m_P = Eigen::MatrixXd::Zero(m_n, m_n);
     Eigen::VectorXd _c = m_c * (-1.);
 
     m_A = Eigen::MatrixXd::Constant(1, m_n, 1.0);
-    m_b = Eigen::VectorXd::Constant(1, 1.0 - m_cashWeight);
+    m_b = Eigen::VectorXd::Constant(1, 1.0);
     add_ins_weight_constrain();
+
+    if (m_tvConstrain) {
+        if (m_oldWeights.size() != m_n) {
+            throw std::runtime_error("expect old weight!");
+        }
+        m_maxTurnover = m_tvAversion;
+        /**
+         * x - w = buy - sell
+         * sigma(buy + sell) < turnover
+         * 0 <= x <= m_insMaxWeight
+         * 0 <= buy <= m_insMaxWeight
+         * 0 <= sell <= m_insMaxWeight
+         */
+        size_t new_n = m_n * 3; // x, buy_amount, sell_amount
+        m_P = Eigen::MatrixXd::Zero(new_n, new_n);
+        append(_c, Eigen::VectorXd::Zero(m_n * 2));
+        m_A.conservativeResize(m_A.rows(), new_n);
+        m_A.rightCols(m_n * 2).setZero();
+        Eigen::MatrixXd splits = Eigen::MatrixXd::Zero(m_n, new_n);
+        for (size_t i = 0; i < m_n; i++) { // x[i] - buy[i] + sell[i] = old_w[i]
+            splits(i, i) = 1;
+            splits(i, i + m_n) = -1;
+            splits(i, i + m_n * 2) = 1;
+        }
+        append(m_A, splits, true);
+        append(m_b, ToVector(m_oldWeights));
+        m_G.conservativeResize(m_G.rows(), new_n);
+        m_G.rightCols(m_n * 2).setZero();
+        Eigen::VectorXd tv_vec = Eigen::VectorXd::Zero(new_n);
+        tv_vec.tail(m_n * 2).setOnes();
+        append(m_G, tv_vec, true);
+        append(m_lh, 0);
+        append(m_uh, m_maxTurnover);
+        append(m_x_lb, Eigen::VectorXd::Zero(m_n * 2));
+        append(m_x_ub, Eigen::VectorXd::Ones(m_n * 2));
+    }
 
     piqp::DenseSolver<double> solver;
     solver.settings().verbose = m_verbose;
@@ -30,13 +64,13 @@ void FpOpt::handle_barra() {
 
     m_status = status;
     m_result = solver.result().x;
-    if (m_covConstrain) {
-        m_variance = m_result.transpose() * Eigen::Map<Eigen::MatrixXd>(m_orig_cov.data(), m_n, m_n) * m_result;
+    if (m_tvConstrain) {
+        m_result.conservativeResize(m_n); // remove buy & sell dummy variable
     }
     m_expected_ret = m_result.transpose() * Eigen::Map<Eigen::VectorXd>(m_y_hat.data(), m_n);
     if (m_tvConstrain) {
         Eigen::Map<Eigen::VectorXd> old_w(m_oldWeights.data(), m_n);
-        m_expected_ret = m_result.transpose() * (m_c - m_tvAversion * old_w);
+        m_expected_ret = m_result.transpose() * (m_c - old_w);
     }
     if (m_tvConstrain) {
         m_turnover = (m_result - Eigen::Map<Eigen::VectorXd>(m_oldWeights.data(), m_n)).lpNorm<1>();
@@ -45,17 +79,17 @@ void FpOpt::handle_barra() {
     }
 
     if (m_verbose) {
-        auto real_cov = Eigen::Map<Eigen::MatrixXd>(m_orig_cov.data(), m_n, m_n);
         std::cout << "P :\n" << m_P << std::endl;
         std::cout << "c = " << m_c.transpose() << std::endl;
         std::cout << "A :\n" << m_A << std::endl;
         std::cout << "b = " << m_b.transpose() << std::endl;
-        if (m_G.rows() > 0) {
-            std::cout << "G :\n" << m_G << std::endl;
-            std::cout << "h = " << m_uh.transpose() << std::endl;
-        }
-        if (m_covConstrain) std::cout << "corr :\n " << cov2corr(real_cov) << std::endl;
-        std::cout << "weight bound [" << m_x_lb[0] << ", " << m_x_ub[0] << "]" << std::endl;
+        std::cout << "G :\n" << m_G << std::endl;
+        std::cout << "h_l = " << m_lh.transpose() << std::endl;
+        std::cout << "h_u = " << m_uh.transpose() << std::endl;
+        std::cout << "x_lb = " << m_x_lb.transpose() << std::endl;
+        std::cout << "x_ub = " << m_x_ub.transpose() << std::endl;
+        std::cout << "x = " << solver.result().x.transpose() << std::endl;
+        std::cout << "m_result = " << m_result.transpose() << std::endl;
         tidy_info();
     }
 }

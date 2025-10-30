@@ -33,9 +33,8 @@ void FpOpt::add_constrain(const std::vector<double>& coefs, double lb, double ub
     ub += v3;
   }
   append(m_G, coefs_, true);
-  std::cout << m_G << std::endl;
   append(m_lh, lb);
-  append(m_uh, lb);
+  append(m_uh, ub);
 }
 
 void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& _sectors,
