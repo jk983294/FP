@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
     opt.set_expected_return(ret);
     opt.set_tvAversion(max_tv);
     opt.solve();
+    std::cout << "m_result = " << opt.m_result.transpose() << std::endl;
     return 0;
 }
 

@@ -20,8 +20,8 @@ if (OPENMP_FOUND)
     message ("${OpenMP_CXX_FLAGS}: " ${OpenMP_CXX_FLAGS})
 endif()
 
-# SET(CMAKE_CXX_FLAGS "-std=c++17 -O3 -s -Wall -Werror")
-SET(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall -Werror")
+SET(CMAKE_CXX_FLAGS "-std=c++17 -O3 -s -Wall -Werror")
+# SET(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall -Werror")
 #SET(CMAKE_CXX_FLAGS "-std=c++17 -g -Wall -Werror -fsanitize=address -fno-omit-frame-pointer")
 
 message ("cxx Flags: " ${CMAKE_CXX_FLAGS})
@@ -42,5 +42,5 @@ link_directories(/opt/3rd/common/lib)
 install(FILES include/fp_opt.h DESTINATION include)
 
 add_subdirectory(src)
- add_subdirectory(pybind11)
- add_subdirectory(pyfp)
+add_subdirectory(pybind11)
+add_subdirectory(pyfp)
