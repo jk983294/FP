@@ -15,7 +15,7 @@ void FpOpt::add_ins_weight_constrain() {
     }
     m_x_lb = Eigen::VectorXd::Constant(m_n, lower_);
     m_x_ub = Eigen::VectorXd::Constant(m_n, upper_);
-    printf("ins weight %f,%f\n", lower_, upper_);
+    // printf("ins weight %f,%f\n", lower_, upper_);
 }
 
 void FpOpt::add_constrain(const std::vector<double>& coefs, double lb, double ub, bool againstBench) {

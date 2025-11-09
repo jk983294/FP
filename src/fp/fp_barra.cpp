@@ -10,7 +10,10 @@ void FpOpt::handle_barra() {
      * s.t. x^t * i = 1.
      *      0. <= x <= m_insMaxWeight
      */
-    m_P = Eigen::MatrixXd::Zero(m_n, m_n);
+    if(!m_useSparse) {
+        m_P = Eigen::MatrixXd::Zero(m_n, m_n);
+    }
+    size_t new_n = m_n;
     Eigen::VectorXd _c = m_c * (-1.);
 
     m_A = Eigen::MatrixXd::Constant(1, m_n, 1.0);
@@ -29,8 +32,10 @@ void FpOpt::handle_barra() {
          * 0 <= buy <= m_insMaxWeight
          * 0 <= sell <= m_insMaxWeight
          */
-        size_t new_n = m_n * 3; // x, buy_amount, sell_amount
-        m_P = Eigen::MatrixXd::Zero(new_n, new_n);
+        new_n = m_n * 3; // x, buy_amount, sell_amount
+        if(!m_useSparse) {
+            m_P = Eigen::MatrixXd::Zero(new_n, new_n);
+        }
         append(_c, Eigen::VectorXd::Zero(m_n * 2));
         m_A.conservativeResize(m_A.rows(), new_n);
         m_A.rightCols(m_n * 2).setZero();
@@ -53,17 +58,37 @@ void FpOpt::handle_barra() {
         append(m_x_ub, Eigen::VectorXd::Ones(m_n * 2));
     }
 
-    piqp::DenseSolver<double> solver;
-    solver.settings().verbose = m_verbose;
-    solver.settings().compute_timings = m_verbose;
-    solver.settings().max_iter = m_maxIter;
+    if (m_useSparse) {
+        piqp::SparseSolver<double> solver;
+        solver.settings().verbose = m_verbose;
+        solver.settings().compute_timings = m_verbose;
+        solver.settings().max_iter = m_maxIter;
+        Eigen::SparseMatrix<double> _P(new_n, new_n);
+        _P.makeCompressed();
+        Eigen::SparseMatrix<double> _A = m_A.sparseView();
+        Eigen::SparseMatrix<double> _G = m_G.sparseView();
 
-    solver.setup(m_P, _c, m_A, m_b, m_G, m_lh, m_uh, m_x_lb, m_x_ub);
+        solver.setup(_P, _c, _A, m_b, _G, m_lh, m_uh, m_x_lb, m_x_ub);
 
-    piqp::Status status = solver.solve();
+        piqp::Status status = solver.solve();
+        m_status = status;
+        m_result = solver.result().x;
+        m_iter = solver.result().info.iter;
+    } else {
+        piqp::DenseSolver<double> solver;
+        solver.settings().verbose = m_verbose;
+        solver.settings().compute_timings = m_verbose;
+        solver.settings().max_iter = m_maxIter;
 
-    m_status = status;
-    m_result = solver.result().x;
+        solver.setup(m_P, _c, m_A, m_b, m_G, m_lh, m_uh, m_x_lb, m_x_ub);
+
+        piqp::Status status = solver.solve();
+
+        m_status = status;
+        m_result = solver.result().x;
+        m_iter = solver.result().info.iter;
+    }
+
     if (m_tvConstrain) {
         m_result.conservativeResize(m_n); // remove buy & sell dummy variable
     }
@@ -88,7 +113,6 @@ void FpOpt::handle_barra() {
         std::cout << "h_u = " << m_uh.transpose() << std::endl;
         std::cout << "x_lb = " << m_x_lb.transpose() << std::endl;
         std::cout << "x_ub = " << m_x_ub.transpose() << std::endl;
-        std::cout << "x = " << solver.result().x.transpose() << std::endl;
         std::cout << "m_result = " << m_result.transpose() << std::endl;
         tidy_info();
     }

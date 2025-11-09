@@ -3,14 +3,12 @@
 #include <limits>
 #include <getopt.h>
 
-int main(int argc, char** argv) {
-    FP::FpOpt opt;
+void test(FP::FpOpt& opt) {
     opt.set_type(FP::FpOptType::Barra);
     size_t nIns = 5;
     double max_tv = 0.3;
     // double max_tv = 0;
-
-    opt.set_verbose(true);
+    
     opt.set_maxIter(100);
     opt.set_size(nIns, false);
     opt.set_insMinWeight(0.0);
@@ -29,6 +27,16 @@ int main(int argc, char** argv) {
     opt.set_tvAversion(max_tv);
     opt.solve();
     std::cout << "m_result = " << opt.m_result.transpose() << std::endl;
+}
+
+int main(int argc, char** argv) {
+    FP::FpOpt opt;
+    opt.set_verbose(true);
+    opt.set_UseSparse(true);
+    for (size_t i = 0; i < 5; i++) {
+      test(opt);
+      opt.clear();
+    }
     return 0;
 }
 

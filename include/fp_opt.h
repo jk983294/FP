@@ -36,6 +36,7 @@ struct FpOpt {
     void set_verbose(bool flag) { m_verbose = flag; }
     void set_BetaNeutral(bool flag) { m_bBetaNeutral = flag; }
     void set_LongOnly(bool flag) { m_bLongOnly = flag; }
+    void set_UseSparse(bool flag) { m_useSparse = flag; }
     void set_DollarNeutral(bool flag) { m_bDollarNeutral = flag; }
     void set_oldWeights(const std::vector<double>& ows);
     void set_benchWeights(const std::vector<double>& v);
@@ -73,6 +74,7 @@ public:
     bool m_verbose{false};
     bool m_tvConstrain{false};
     bool m_covConstrain{false};
+    bool m_useSparse{false};
     FpOptType m_optType{FpOptType::SoftConstrained};
     /**
      * lambda1
@@ -89,6 +91,7 @@ public:
     double m_insMinWeight{NAN}; // individual instrument min weight
     double m_maxTurnover{NAN};
     size_t m_maxIter{250};
+    int64_t m_iter{0};
     size_t m_nIns{0};
     size_t m_n{0}; // if include cash, m_n = m_nIns + 1, else m_n = m_nIns
     std::vector<double> m_oldWeights;
