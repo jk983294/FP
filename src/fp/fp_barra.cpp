@@ -59,21 +59,34 @@ void FpOpt::handle_barra() {
     }
 
     if (m_useSparse) {
-        piqp::SparseSolver<double> solver;
-        solver.settings().verbose = m_verbose;
-        solver.settings().compute_timings = m_verbose;
-        solver.settings().max_iter = m_maxIter;
+        bool first_time = false;
+        piqp::SparseSolver<double>* solver{nullptr};
+        if (m_sSolver == nullptr) {
+            m_sSolver = solver = new piqp::SparseSolver<double>;
+            first_time = true;
+            solver->settings().verbose = m_verbose;
+            solver->settings().compute_timings = m_verbose;
+            solver->settings().max_iter = m_maxIter;
+        } else {
+            solver = reinterpret_cast<piqp::SparseSolver<double>*>(m_sSolver);
+            // if (m_barra_pre_n != new_n) 
+                first_time = true;
+        }
         Eigen::SparseMatrix<double> _P(new_n, new_n);
         _P.makeCompressed();
         Eigen::SparseMatrix<double> _A = m_A.sparseView();
         Eigen::SparseMatrix<double> _G = m_G.sparseView();
 
-        solver.setup(_P, _c, _A, m_b, _G, m_lh, m_uh, m_x_lb, m_x_ub);
+        if (first_time) {
+            solver->setup(_P, _c, _A, m_b, _G, m_lh, m_uh, m_x_lb, m_x_ub);
+        } else {
+            solver->update(_P, _c, _A, m_b, _G, m_lh, m_uh, m_x_lb, m_x_ub);
+        }
 
-        piqp::Status status = solver.solve();
+        piqp::Status status = solver->solve();
         m_status = status;
-        m_result = solver.result().x;
-        m_iter = solver.result().info.iter;
+        m_iter = solver->result().info.iter;
+        m_result = solver->result().x;
     } else {
         piqp::DenseSolver<double> solver;
         solver.settings().verbose = m_verbose;
@@ -116,5 +129,6 @@ void FpOpt::handle_barra() {
         std::cout << "m_result = " << m_result.transpose() << std::endl;
         tidy_info();
     }
+    m_barra_pre_n = new_n;
 }
 }

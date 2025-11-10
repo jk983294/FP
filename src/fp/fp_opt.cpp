@@ -1,5 +1,6 @@
 #include <fp_opt.h>
 #include <fp_eigen.h>
+#include <piqp/piqp.hpp>
 
 namespace FP {
 void FpOpt::clear() {
@@ -16,6 +17,21 @@ void FpOpt::clear() {
     // m_h.resize(0);
     m_x_lb.resize(0);
     m_x_ub.resize(0);
+}
+
+void FpOpt::clear_barra() {
+    m_G.conservativeResize(0, 0);
+    m_lh.resize(0);
+    m_uh.resize(0);
+}
+
+FpOpt::~FpOpt() {
+    if (m_sSolver) {
+        delete reinterpret_cast<piqp::SparseSolver<double>*>(m_sSolver);
+    }
+    if (m_dSolver) {
+        delete reinterpret_cast<piqp::DenseSolver<double>*>(m_dSolver);
+    }
 }
 
 void FpOpt::sanity_check() {

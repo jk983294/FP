@@ -15,7 +15,9 @@ enum class FpOptType : int32_t {
 
 struct FpOpt {
     FpOpt() = default;
+    ~FpOpt();
     FpOpt(bool verbose): m_verbose{verbose} {}
+    void clear_barra();
     void clear();
     void solve();
     void set_covariance_vec(const std::vector<double>& cov);
@@ -94,6 +96,7 @@ public:
     int64_t m_iter{0};
     size_t m_nIns{0};
     size_t m_n{0}; // if include cash, m_n = m_nIns + 1, else m_n = m_nIns
+    size_t m_barra_pre_n{0};
     std::vector<double> m_oldWeights;
     std::vector<double> m_benchWeights;
     std::vector<double> m_y_hat;
@@ -113,5 +116,7 @@ public:
     double m_expected_ret{NAN};
     double m_turnover{NAN};
     Eigen::VectorXd m_result;
+    void* m_sSolver{nullptr};
+    void* m_dSolver{nullptr};
 };
 }  // namespace FP
