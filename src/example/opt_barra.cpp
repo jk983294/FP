@@ -31,11 +31,10 @@ void test(FP::FpOpt& opt, bool tv) {
     std::cout << "m_result = " << opt.m_result.transpose() << std::endl;
 }
 
-void test1(FP::FpOpt& opt, bool tv) {
+void test1(FP::FpOpt& opt, bool tv, bool equal = false) {
     opt.set_type(FP::FpOptType::Barra);
     size_t nIns = 6;
     double max_tv = 0.3;
-    // double max_tv = 0;
     
     opt.set_maxIter(100);
     opt.set_size(nIns, false);
@@ -49,7 +48,12 @@ void test1(FP::FpOpt& opt, bool tv) {
       opt.set_tvAversion(0);
     }
     opt.add_constrain({0.1, 0.2, 0.1, 0.3, 0.2, 0.2}, -1.3, 1.3, true);
-    opt.add_constrain({0.2, 0.1, 0.1, 0.4, 0.2, 0.1}, -1.4, 1.4, true);
+    if (!equal) {
+      opt.add_constrain({0.2, 0.1, 0.1, 0.4, 0.2, 0.1}, -1.4, 1.4, true);
+    } else {
+      opt.add_constrain({0.2, 0.1, 0.1, 0.4, 0.2, 0.1}, 0, 0, true);
+    }
+
 
     Eigen::VectorXd ret(nIns);
     ret << 0.07, 0.1, 0.03, -0.02, -0.03, -0.3;
@@ -77,6 +81,14 @@ int main(int argc, char** argv) {
     }
     for (size_t i = 0; i < 5; i++) {
       test1(opt, true);
+      opt.clear_barra();
+    }
+    for (size_t i = 0; i < 1; i++) {
+      test1(opt, false, true);
+      opt.clear_barra();
+    }
+    for (size_t i = 0; i < 1; i++) {
+      test1(opt, true, true);
       opt.clear_barra();
     }
     return 0;

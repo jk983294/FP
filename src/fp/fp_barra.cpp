@@ -16,8 +16,12 @@ void FpOpt::handle_barra() {
     size_t new_n = m_n;
     Eigen::VectorXd _c = m_c * (-1.);
 
-    m_A = Eigen::MatrixXd::Constant(1, m_n, 1.0);
-    m_b = Eigen::VectorXd::Constant(1, 1.0);
+    {
+      Eigen::MatrixXd tmp_ = Eigen::MatrixXd::Constant(1, m_n, 1.0);
+      append(m_A, tmp_, true);
+      append(m_b, 1.0);
+    }
+
     add_ins_weight_constrain();
 
     if (m_tvConstrain) {

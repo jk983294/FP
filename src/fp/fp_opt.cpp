@@ -11,8 +11,8 @@ void FpOpt::clear() {
     m_result.resize(0);
     // m_P.resize(0, 0);
     // m_c.resize(0);
-    m_A.resize(0, 0);
-    m_b.resize(0);
+    // m_A.resize(0, 0);
+    // m_b.resize(0);
     // m_G.resize(0, 0);
     // m_h.resize(0);
     m_x_lb.resize(0);
@@ -23,6 +23,8 @@ void FpOpt::clear_barra() {
     m_G.conservativeResize(0, 0);
     m_lh.resize(0);
     m_uh.resize(0);
+    m_A.resize(0, 0);
+    m_b.resize(0);
 }
 
 FpOpt::~FpOpt() {

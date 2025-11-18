@@ -32,9 +32,14 @@ void FpOpt::add_constrain(const std::vector<double>& coefs, double lb, double ub
     lb += v3;
     ub += v3;
   }
-  append(m_G, coefs_, true);
-  append(m_lh, lb);
-  append(m_uh, ub);
+  if (std::abs(ub - lb) > 1e-9) {
+    append(m_G, coefs_, true);
+    append(m_lh, lb);
+    append(m_uh, ub);
+  } else {
+    append(m_A, coefs_, true);
+    append(m_b, ub);
+  }
 }
 
 void FpOpt::add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& _sectors,
