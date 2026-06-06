@@ -29,7 +29,7 @@ TEST_CASE("SoftConstrained cashWeight", "[SoftConstrained]") {
     std::vector<double> result = opt.get_result();
 
     REQUIRE(opt.m_status == 1);
-    REQUIRE(opt.m_variance == 0.013634999972609599);
+    REQUIRE(opt.m_variance == Approx(0.013634999972609599));
     REQUIRE(opt.m_expected_ret == 0.080899999958977786);
     REQUIRE(result == expected_w);
 }
@@ -59,7 +59,7 @@ TEST_CASE("SoftConstrained no cov", "[SoftConstrained]") {
 
     REQUIRE(opt.m_status == 1);
     REQUIRE(std::isnan(opt.m_variance));
-    REQUIRE(opt.m_expected_ret == 0.087499999913636745);
-    REQUIRE(opt.m_turnover == 0.099999994242867873);
+    REQUIRE(opt.m_expected_ret == Approx(0.087499999913636745));
+    REQUIRE(opt.m_turnover == Approx(0.099999994242867873));
     REQUIRE(result == expected_w);
 }

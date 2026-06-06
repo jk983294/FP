@@ -24,7 +24,7 @@ TEST_CASE("Constrained cashWeight", "[Constrained]") {
     std::vector<double> result = opt.get_result();
 
     REQUIRE(opt.m_status == 1);
-    REQUIRE(opt.m_variance == 0.021634999624204922);
+    REQUIRE(opt.m_variance == Approx(0.021634999624204922));
     REQUIRE(result == expected_w);
 }
 
@@ -50,7 +50,7 @@ TEST_CASE("Constrained long only max ins weight", "[Constrained]") {
     std::vector<double> result = opt.get_result();
 
     REQUIRE(opt.m_status == 1);
-    REQUIRE(opt.m_variance == 0.017474989441959791);
+    REQUIRE(opt.m_variance == Approx(0.017474989441959791));
     REQUIRE(result == expected_w);
 }
 
@@ -75,7 +75,7 @@ TEST_CASE("Constrained sector weight", "[Constrained]") {
     std::vector<double> result = opt.get_result();
 
     REQUIRE(opt.m_status == 1);
-    REQUIRE(opt.m_variance == 0.015524999818221372);
+    REQUIRE(opt.m_variance == Approx(0.015524999818221372));
     REQUIRE(result == expected_w);
 }
 
@@ -100,6 +100,6 @@ TEST_CASE("Constrained sector weight full", "[Constrained]") {
     std::vector<double> result = opt.get_result();
 
     REQUIRE(opt.m_status == 1);
-    REQUIRE(opt.m_variance == 0.015524999818221372);
+    REQUIRE(opt.m_variance == Approx(0.015524999818221372));
     REQUIRE(result == expected_w);
 }

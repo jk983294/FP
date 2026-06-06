@@ -10,6 +10,8 @@ enum class FpOptType : int32_t {
     MeanVariance,
     Constrained,
     Barra,
+    Barra1,
+    BarraSharpe,
     SoftConstrained, // tv into penalty
 };
 
@@ -40,6 +42,7 @@ struct FpOpt {
     void set_LongOnly(bool flag) { m_bLongOnly = flag; }
     void set_UseSparse(bool flag) { m_useSparse = flag; }
     void set_DollarNeutral(bool flag) { m_bDollarNeutral = flag; }
+    void set_riskFreeRate(double v) { m_riskFreeRate = v; }
     void set_oldWeights(const std::vector<double>& ows);
     void set_benchWeights(const std::vector<double>& v);
     void add_constrain(const std::vector<double>& coefs, double lb, double ub, bool againstBench=true);
@@ -60,6 +63,8 @@ private:
     void handle_Constrained();
     void handle_SoftConstrained();
     void handle_barra();
+    void handle_barra1();
+    void handle_barra_max_sharpe();
     void sanity_check();
     void add_ins_weight_constrain();
     void _tv_constrain();
@@ -89,6 +94,7 @@ public:
      */
     double m_tvAversion{1.0};
     double m_cashWeight{0};
+    double m_riskFreeRate{0.01};
     double m_insMaxWeight{NAN}; // individual instrument max weight
     double m_insMinWeight{NAN}; // individual instrument min weight
     double m_maxTurnover{NAN};

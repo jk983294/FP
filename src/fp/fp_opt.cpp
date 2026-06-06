@@ -66,6 +66,14 @@ void FpOpt::solve() {
           handle_barra();
           break;
         }
+        case FpOptType::Barra1: {
+          handle_barra1();
+          break;
+        }
+        case FpOptType::BarraSharpe: {
+          handle_barra_max_sharpe();
+          break;
+        }
         default:
             printf("should not print here!\n");
     }
