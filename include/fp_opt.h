@@ -45,6 +45,15 @@ struct FpOpt {
     void set_riskFreeRate(double v) { m_riskFreeRate = v; }
     void set_oldWeights(const std::vector<double>& ows);
     void set_benchWeights(const std::vector<double>& v);
+    /**
+     * Set Barra factor model components for handle_barra1().
+     * B:   N×K factor exposure matrix
+     * Fcov: K×K factor covariance matrix
+     * D:    N×1 specific risk variance (diagonal of D matrix)
+     */
+    void set_factor_exposure(const Eigen::MatrixXd& B);
+    void set_factor_cov(const Eigen::MatrixXd& Fcov);
+    void set_specific_risk(const Eigen::VectorXd& D);
     void add_constrain(const std::vector<double>& coefs, double lb, double ub, bool againstBench=true);
     void add_sector_constrain(const std::vector<int>& ins_sectors, const std::vector<int>& sectors,
         const std::vector<double>& sector_wgts);
@@ -109,6 +118,11 @@ public:
     std::vector<double> m_orig_cov;
     Eigen::MatrixXd m_P; // cov matrix
     Eigen::VectorXd m_c; // return vector
+    Eigen::MatrixXd m_B;   // N×K factor exposure
+    Eigen::MatrixXd m_Fcov; // K×K factor covariance
+    Eigen::VectorXd m_D;    // N×1 specific risk variance
+    size_t m_nFactors{0};
+    bool m_factorModel{false};
     Eigen::MatrixXd m_A; // equality constrains, Ax = b
     Eigen::VectorXd m_b;
     Eigen::MatrixXd m_G; // inequality constrains, Gx <= h

@@ -25,6 +25,8 @@ void FpOpt::clear_barra() {
     m_uh.resize(0);
     m_A.resize(0, 0);
     m_b.resize(0);
+    m_factorModel = false;
+    m_nFactors = 0;
 }
 
 FpOpt::~FpOpt() {
@@ -79,7 +81,32 @@ void FpOpt::solve() {
     }
 }
 
-void FpOpt::set_riskAversion(double v) { 
+void FpOpt::set_factor_exposure(const Eigen::MatrixXd& B) {
+    if ((size_t)B.rows() != m_n) {
+        throw std::runtime_error("factor exposure rows != m_n! "
+            + std::to_string(B.rows()) + " vs " + std::to_string(m_n));
+    }
+    m_B = B;
+    m_nFactors = B.cols();
+    m_factorModel = true;
+}
+
+void FpOpt::set_factor_cov(const Eigen::MatrixXd& Fcov) {
+    if (Fcov.rows() != Fcov.cols()) {
+        throw std::runtime_error("factor cov must be square!");
+    }
+    m_Fcov = Fcov;
+}
+
+void FpOpt::set_specific_risk(const Eigen::VectorXd& D) {
+    if ((size_t)D.size() != m_n) {
+        throw std::runtime_error("specific risk size != m_n! "
+            + std::to_string(D.size()) + " vs " + std::to_string(m_n));
+    }
+    m_D = D;
+}
+
+void FpOpt::set_riskAversion(double v) {
     m_riskAversion = v;
     if (m_riskAversion <= 1e-6) {
         m_covConstrain = false;
