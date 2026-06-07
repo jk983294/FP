@@ -76,6 +76,10 @@ void FpOpt::solve() {
           handle_barra_max_sharpe();
           break;
         }
+        case FpOptType::BarraTE: {
+          handle_barra_te();
+          break;
+        }
         default:
             printf("should not print here!\n");
     }
@@ -197,4 +201,6 @@ void FpOpt::set_size(size_t nIns, bool incCash) {
 std::vector<double> FpOpt::get_result() const {
     return ToVector(m_result);
 }
+
+void FpOpt::set_teBound(double v) { m_teBound = v; }
 }

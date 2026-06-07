@@ -32,15 +32,17 @@ add_definitions(-DPIQP_STD_OPTIONAL)
 
 include_directories(SYSTEM /opt/3rd/common/include)
 include_directories(SYSTEM /opt/3rd/Eigen)
+include_directories(SYSTEM /opt/3rd/scs/include)
 include_directories(include)
 include_directories(/opt/version/latest/zerg/include)
 #include_directories(/opt/version/latest/ornate/include)
 
 link_directories(/opt/3rd/common/lib)
+link_directories(/opt/3rd/scs/lib/)
 
 # install(DIRECTORY include/ DESTINATION include)
 install(FILES include/fp_opt.h DESTINATION include)
 
 add_subdirectory(src)
-add_subdirectory(pybind11)
-add_subdirectory(pyfp)
+# add_subdirectory(pybind11)
+# add_subdirectory(pyfp)

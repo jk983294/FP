@@ -12,6 +12,7 @@ enum class FpOptType : int32_t {
     Barra,
     Barra1,
     BarraSharpe,
+    BarraTE,
     SoftConstrained, // tv into penalty
 };
 
@@ -33,6 +34,7 @@ struct FpOpt {
     void set_size(size_t nIns, bool incCash = false);
     void set_riskAversion(double v);
     void set_tvAversion(double v);
+    void set_teBound(double v);
     void set_maxIter(size_t v) { m_maxIter = v; }
     void set_cashWeight(double w_) { m_cashWeight = w_; }
     void set_insMaxWeight(double w_) { m_insMaxWeight = w_; }
@@ -74,6 +76,7 @@ private:
     void handle_barra();
     void handle_barra1();
     void handle_barra_max_sharpe();
+    void handle_barra_te();
     void sanity_check();
     void add_ins_weight_constrain();
     void _tv_constrain();
@@ -107,6 +110,7 @@ public:
     double m_insMaxWeight{NAN}; // individual instrument max weight
     double m_insMinWeight{NAN}; // individual instrument min weight
     double m_maxTurnover{NAN};
+    double m_teBound{0.05}; // tracking error bound for BarraTE
     size_t m_maxIter{250};
     int64_t m_iter{0};
     size_t m_nIns{0};
