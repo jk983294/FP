@@ -135,7 +135,7 @@ public:
     Eigen::VectorXd m_x_lb; // bound x_lb <= x <= x_ub
     Eigen::VectorXd m_x_ub;
 
-    int32_t m_status{0};
+    int32_t m_status{0}; // > 0 feasible, <=0 failed
     double m_variance{NAN};
     double m_expected_ret{NAN};
     double m_turnover{NAN};

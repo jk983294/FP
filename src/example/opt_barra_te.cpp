@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
   opt.set_size(nIns, false);
   opt.set_insMinWeight(0.0);
   opt.set_insMaxWeight(0.3);
-  opt.set_teBound(0.05);  // 5% tracking error bound
+  opt.set_teBound(0.05);
 
   // --- Factor exposure B (N x K) ---
   // Row i = factor loadings for instrument i
